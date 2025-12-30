@@ -35,6 +35,7 @@ Parameters
 | `moon_phase_style` | Moon phase display style: `css` (default), `symbol`, or `name`. | [...?show_moon_phase=true&moon_phase_style=symbol](https://abetusk.github.io/neatocal?show_moon_phase=true&moon_phase_style=symbol) |
 | `moon_phase_position` | Position of moon phase: `below` (default) or `inline`. | [...?show_moon_phase=true&moon_phase_position=inline](https://abetusk.github.io/neatocal?show_moon_phase=true&moon_phase_position=inline) |
 | `moon_phase_display` | When to show moon phases: `changes` (default, only on phase transitions) or `all` (every day). | [...?show_moon_phase=true&moon_phase_display=all](https://abetusk.github.io/neatocal?show_moon_phase=true&moon_phase_display=all) |
+| `show_week_numbers` | Displays the week number. (default `false`) | [...?show_week_numbers=true](https://abetusk.github.io/neatocal?show_week_numbers=true) |
 | `data` | Location of JSON data file. | [...?data=example/data.json](https://abetusk.github.io/neatocal?data=example/data.json) |
 | `help` | Show help screen  | [...?help](https://abetusk.github.io/neatocal?help) |
 
