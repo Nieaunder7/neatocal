@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400&display=swap" rel="stylesheet">
+
+<meta charset="utf-8">
+<title>Commit Heatmap Calendar 2025 - All Members</title>
+
+
+<!-- NeatoCal CSS (Inline) -->
+<style>
+/*
+
+MIT License
+
+Copyright (c) 2022 Neatnik LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  #ui_info {
+    display: none;
+  }
+}
+
+html {
+  font-family: 'Oswald';
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  width: 100%;
+  height: calc(100% - 2.5em);
+  border-collapse: separate;
+  border-spacing: .5em 0;
+}
+
+td, th {
+  font-weight: normal;
+  text-transform: uppercase;
+  border-bottom: 1px solid #888;
+  padding: .3vmin .3vmin;
+  font-size: .9vmin;
+  font-weight: 300;
+  color: #000;
+}
+
+th {
+  font-size: 1.1vmin;
+  /* font-size: var(--month-font-size); */
+  padding: 0;
+}
+
+td:empty {
+  border: 0;
+}
+
+.date {
+  display: inline-block;
+  width: 1.1em;
+}
+
+.day {
+  display: inline-block;
+  text-align: center;
+  width: 1em;
+  color: #888;
+}
+
+.weekend {
+  /* background: #d8d8d8; */
+  background: #eee;
+  font-weight: 400;
+}
+
+p {
+  margin: 0 0 .5em 0;
+  text-align: center;
+}
+
+* {
+  color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+#ui_info {
+  font-family: 'Inter', sans-serif;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 5em 2em;
+  width: calc(100% - 6em);
+  background: #333;
+  color: #eee;
+  padding: 1em 1em .5em 1em;
+  font-size: 2vmax;
+  border-radius: .2em;
+}
+#ui_info p {
+  text-align: left;
+  margin: 0 0 1em 0;
+  line-height: 135%;
+}
+#ui_info a {
+  color: inherit;
+}
+
+/* Moon phase styles */
+.moon-container {
+  display: block;
+  text-align: center;
+  margin-top: 0.2em;
+}
+
+.moon-inline {
+  margin-left: 0.2em;
+}
+
+.moon-symbol {
+  font-size: 1.1em;
+}
+
+.moon-name {
+  font-size: 0.7em;
+  color: #666;
+  text-transform: none;
+}
+
+.moon-phase {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.moon-phase svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+</style>
+<!-- NeatoCal JS (Inline) -->
+<script>
+/*
+
+MIT License
+
+Copyright (c) 2022 Neatnik LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+var NEATOCAL_PARAM = {
+
+  // experiments with filling in data in cells
+  //
+  "data_fn": "",
+
+  "data": { },
+
+  "color_cell": [],
+
+  // Putting data in cells can alter the cell/row height,
+  // so we allow a user parameter to fiddle with cell height.
+  // The parameter here is directly applied to the `tr` style,
+  // so values of "1.5em" or "30px" will work.
+  //
+  "cell_height": "",
+
+  // show info/help screen
+  //
+  "help" : false,
+
+  // for aligned-weekdays, which day to start (0 indexed)
+  //
+  //   Monday (1) default
+  //
+  "start_day": 1,
+
+  // calendar format
+  //
+  //   default
+  //   aligned-weekdays
+  //
+  "format": "default",
+
+  // year to start
+  //
+  //   default this year
+  //
+  "year": new Date().getFullYear(),
+
+  // Text to use for displaying weekdays
+  //
+  "weekday_code" : [ "Su", "M", "T", "W", "R", "F", "Sa"  ],
+
+  // text to sue for month header
+  //
+  "month_code": [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
+
+  // weekend days (0=Sun, 1=Mon, ..., 5=Fri, 6=Sat)
+  // Default Sunday Monday.
+  //
+  "weekend_days": [ 0, 6 ],
+
+  //
+  "language" : "",
+
+  // start month (0 indexed)
+  //
+  //   Janurary (0) default
+  //
+  "start_month" : 0,
+
+  // number of months to go out to
+  //
+  "n_month" : 12,
+
+  // weekend highlight color
+  //
+  "highlight_color": '#eee',
+
+  // Moon phase display options
+  //
+  "show_moon_phase": false,
+  "moon_phase_style": "css",  // "css", "symbol", "name"
+  "moon_phase_position": "below",  // "below", "inline"
+  "moon_phase_display": "changes",  // "all", "changes"
+  //
+  // show week numbers
+  //
+  "show_week_numbers": false,
+
+  // fiddly parameters
+  //
+  "year_font_size": undefined,
+  "year_font_weight": undefined,
+  "year_foreground_color": undefined,
+  "year_background_color": undefined,
+
+  "month_font_size": undefined,
+  "month_font_weight": undefined,
+  "month_foreground_color": undefined,
+  "month_background_color": undefined,
+
+  "weekday_font_size": undefined,
+  "weekday_font_weight": undefined,
+  "weekday_foreground_color": undefined,
+  "weekday_background_color": undefined,
+
+  "weekend_font_size": undefined,
+  "weekend_font_weight": undefined,
+  "weekend_foreground_color": undefined,
+  "weekend_background_color": undefined,
+
+  "week_font_size": undefined,
+  "week_font_weight": undefined,
+  "week_foreground_color": undefined,
+  "week_background_color": undefined,
+
+  "date_font_size": undefined,
+  "date_font_weight": undefined,
+  "date_foreground_color": undefined,
+  "date_background_color": undefined,
+
+  "weekend_date_font_size": undefined,
+  "weekend_date_font_weight": undefined,
+  "weekend_date_foreground_color": undefined,
+  "weekend_date_background_color": undefined
+
+};
+
+// simple HTML convenience functions
+//
+var H = {
+  "text": function(txt) { return document.createTextNode(txt); },
+  "div": function() { return document.createElement("div"); },
+  "tr": function() { return document.createElement("tr"); },
+  "th": function(v) {
+    let th = document.createElement("th");
+    if (typeof v !== "undefined") { th.innerHTML = v; }
+    return th;
+  },
+  "td": function() { return document.createElement("td"); },
+  "span": function(v,_class) {
+    let s = document.createElement("span");
+    if (typeof v !== "undefined") { s.innerHTML = v; }
+    if (typeof _class !== "undefined") { s.classList.add(_class); }
+    return s;
+  }
+};
+
+// Probably overkill but have parameters to fiddle with the weekend text, weekday text,
+// date (day in month) text, month text, week number (if specified) and dates that fall
+// on the weekend (day in month that are also weekends).
+// Logic is in each of the render functions but the idea is that date stylings happens
+// first then weekend_date stylings are applied.
+//
+// ele is the HTML element that class stylings are being applied.
+// _type is one of "weekend", "weekday", "date", "month", "week", "weekend_date"
+//
+// _type is checked for validity from the `valid_types` array.
+// If not found, returns.
+//
+// If found, each of the parameter variables is enumerated by tacking on the suffix
+// in the `sfx_param` array and testing to see if specified in the NEATOCAL_PARAM list.
+// If found, the class stylings are applied to the HTML element using the `class_key`
+// value specified.
+//
+function ele_styles(ele, _type) {
+  let valid_type = ["weekend", "weekday", "date", "month", "week", "weekend_date", "year"];
+  let sfx_param = [ "_font_size", "_font_weight", "_foreground_color", "_background_color"];
+  let class_key = ["fontSize", "fontWeight", "color", "background"];
+
+  let _t = "";
+  for (let i=0; i<valid_type.length; i++) {
+    if (valid_type[i] == _type) { _t = valid_type[i];  break; }
+  }
+  if (_t == "") { return; }
+
+  for (let i=0; i<sfx_param.length; i++) {
+    let _param = _t + sfx_param[i];
+    if ((_param in NEATOCAL_PARAM) &&
+        (typeof NEATOCAL_PARAM[_param] !== "undefined")) {
+      ele.style[class_key[i]] = NEATOCAL_PARAM[_param];
+    }
+  }
+
+}
+
+// for convenience, functions wrap the above meta function
+//
+function weekend_styles(weekend_ele) { ele_styles(weekend_ele, "weekend"); }
+function weekday_styles(weekday_ele) { ele_styles(weekday_ele, "weekday"); }
+function week_styles(week_ele) { ele_styles(week_ele, "week"); }
+function date_styles(date_ele) { ele_styles(date_ele, "date"); }
+function weekend_date_styles(weekend_date_ele) { ele_styles(weekend_date_ele, "weekend_date"); }
+function month_styles(month_ele) { ele_styles(month_ele, "month"); }
+function year_styles(year_ele) { ele_styles(year_ele, "year"); }
+
+
+
+// Moon phase calculation functions
+// Reference: Known new moon on Jan 6, 2000, 18:14 UTC (Julian Day 2451550.26)
+//
+function calculateLunarAge(year, month, day) {
+
+  // Calculate days since reference new moon (Jan 6, 2000)
+  //
+  let refDate = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
+  let targetDate = new Date(Date.UTC(year, month, day, 0, 0, 0));
+
+  let daysSince = (targetDate - refDate) / (1000 * 60 * 60 * 24);
+
+  // Lunar synodic period (new moon to new moon)
+  //
+  let lunarCycle = 29.53058867;
+
+  // Calculate lunar age (days since last new moon)
+  //
+  let lunarAge = daysSince % lunarCycle;
+  if (lunarAge < 0) { lunarAge += lunarCycle; }
+
+  return lunarAge;
+}
+
+function getMoonPhase(lunarAge) {
+
+  // Returns phase index 0-7
+  // 0: New Moon, 1: Waxing Crescent, 2: First Quarter, 3: Waxing Gibbous
+  // 4: Full Moon, 5: Waning Gibbous, 6: Last Quarter, 7: Waning Crescent
+  //
+  let phase = Math.round((lunarAge / 29.53058867) * 8) % 8;
+
+  return phase;
+}
+
+function getMoonIllumination(lunarAge) {
+  // Returns illumination percentage 0-100
+  let cycle = 29.53058867;
+  let percent = ((1 - Math.cos((lunarAge / cycle) * 2 * Math.PI)) / 2) * 100;
+  return Math.round(percent);
+}
+
+function getMoonPhaseName(phase) {
+  const names = [
+    "New", "Wax Cres", "First Qtr", "Wax Gibb",
+    "Full", "Wan Gibb", "Last Qtr", "Wan Cres"
+  ];
+  return names[phase];
+}
+
+function getMoonPhaseSymbol(phase) {
+  const symbols = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+  return symbols[phase];
+}
+
+// Counter for unique mask IDs
+//
+var MOON_PHASE_COUNTER = 0;
+
+function createMoonPhaseCSS(phase, lunarAge) {
+
+  // Create an inline SVG moon phase visualization with unique mask IDs
+  //
+  let span = H.span("", "moon-phase");
+  let uid = ++MOON_PHASE_COUNTER;
+
+  // SVG moon phase definitions using masks for curved terminators
+  //
+  const svgs = [
+
+    // 0: New Moon
+    //
+    "<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><circle cx='32' cy='32' r='30' fill='#404040'/></svg>",
+
+    // 1: Waxing Crescent
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m1-${uid}'><circle cx='32' cy='32' r='30' fill='white'/><circle cx='22' cy='32' r='30' fill='black'/></mask></defs><circle cx='32' cy='32' r='30' fill='#404040'/><circle cx='32' cy='32' r='30' fill='#d0d0d0' mask='url(#m1-${uid})'/></svg>`,
+
+    // 2: First Quarter
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m2-${uid}'><rect x='32' y='0' width='32' height='64' fill='white'/></mask></defs><circle cx='32' cy='32' r='30' fill='#404040'/><circle cx='32' cy='32' r='30' fill='#d0d0d0' mask='url(#m2-${uid})'/></svg>`,
+
+    // 3: Waxing Gibbous
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m3-${uid}'><circle cx='32' cy='32' r='30' fill='white'/><circle cx='42' cy='32' r='30' fill='black'/></mask></defs><circle cx='32' cy='32' r='30' fill='#d0d0d0'/><circle cx='32' cy='32' r='30' fill='#404040' mask='url(#m3-${uid})'/></svg>`,
+
+    // 4: Full Moon
+    //
+    "<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><circle cx='32' cy='32' r='30' fill='#d0d0d0'/></svg>",
+
+    // 5: Waning Gibbous
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m5-${uid}'><circle cx='32' cy='32' r='30' fill='white'/><circle cx='22' cy='32' r='30' fill='black'/></mask></defs><circle cx='32' cy='32' r='30' fill='#d0d0d0'/><circle cx='32' cy='32' r='30' fill='#404040' mask='url(#m5-${uid})'/></svg>`,
+
+    // 6: Last Quarter (Third Quarter)
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m6-${uid}'><rect x='0' y='0' width='32' height='64' fill='white'/></mask></defs><circle cx='32' cy='32' r='30' fill='#404040'/><circle cx='32' cy='32' r='30' fill='#d0d0d0' mask='url(#m6-${uid})'/></svg>`,
+
+    // 7: Waning Crescent
+    //
+    `<svg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'><defs><mask id='m7-${uid}'><circle cx='32' cy='32' r='30' fill='white'/><circle cx='42' cy='32' r='30' fill='black'/></mask></defs><circle cx='32' cy='32' r='30' fill='#404040'/><circle cx='32' cy='32' r='30' fill='#d0d0d0' mask='url(#m7-${uid})'/></svg>`
+  ];
+
+  span.innerHTML = svgs[phase];
+  return span;
+}
+
+function renderMoonPhase(td, year, month, day) {
+  if (!NEATOCAL_PARAM.show_moon_phase) { return; }
+
+  let lunarAge = calculateLunarAge(year, month, day);
+  let phase = getMoonPhase(lunarAge);
+
+  // If only showing phase changes, check if phase is different from previous day
+  //
+  if (NEATOCAL_PARAM.moon_phase_display === "changes") {
+
+    // Calculate previous day
+    //
+    let prevDate = new Date(year, month, day - 1);
+    let prevLunarAge = calculateLunarAge(prevDate.getFullYear(), prevDate.getMonth(), prevDate.getDate());
+    let prevPhase = getMoonPhase(prevLunarAge);
+
+    // Skip if phase hasn't changed
+    //
+    if (phase === prevPhase) { return; }
+  }
+
+  let moonElement;
+
+  if (NEATOCAL_PARAM.moon_phase_style === "symbol") {
+    moonElement = H.span(getMoonPhaseSymbol(phase), "moon-symbol");
+  }
+
+  else if (NEATOCAL_PARAM.moon_phase_style === "name") {
+    moonElement = H.span(getMoonPhaseName(phase), "moon-name");
+  }
+
+  else {
+
+    // Default to CSS
+    //
+    moonElement = createMoonPhaseCSS(phase, lunarAge);
+  }
+
+  if (NEATOCAL_PARAM.moon_phase_position === "inline") {
+
+    // Add inline after a space
+    //
+    moonElement.classList.add("moon-inline");
+    td.appendChild(H.text(" "));
+    td.appendChild(moonElement);
+  }
+
+  else {
+
+    // Add below in its own container
+    //
+    let moonContainer = H.div();
+    moonContainer.classList.add("moon-container");
+    moonContainer.appendChild(moonElement);
+    td.appendChild(moonContainer);
+  }
+
+}
+
+function localized_day(locale, day_idx) {
+  let iday = 17 + day_idx;
+  let s = '1995-12-' + iday.toString() + 'T12:00:01Z';
+  let d = new Date(s);
+  return d.toLocaleDateString(locale, {"weekday":"short"});
+}
+
+function localized_month(locale, mo_idx) {
+  let imo = 1 + mo_idx;
+  let imo_str = ((imo < 10) ? ("0" + imo.toString()) : imo.toString());
+  let s = '1995-' + imo_str + '-18T12:00:01Z';
+  let d = new Date(s);
+  return d.toLocaleDateString(locale, {"month":"short"});
+}
+
+function neatocal_hallon_almanackan() {
+  let year      = NEATOCAL_PARAM.year;
+  let start_mo  = NEATOCAL_PARAM.start_month;
+  let n_mo      = NEATOCAL_PARAM.n_month;
+
+  let ui_tr_mo = document.getElementById("ui_tr_month_name");
+  ui_tr_mo.innerHTML = "";
+  for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+    let th_mo = H.th( NEATOCAL_PARAM.month_code[ i_mo%12 ] );
+    month_styles(th_mo);
+    ui_tr_mo.appendChild( th_mo );
+  }
+
+  // Precompute the parity of week the day falls on.
+  // Calendar is month major order, making it more difficult
+  // to calculate the parity of week the day falls in.
+  //
+  let week_parity = 0;
+  let day_parity = {};
+  for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+
+    let cur_year = parseInt(year) + Math.floor(i_mo/12);
+    let cur_mo = i_mo%12;
+    let nday_in_mo = new Date(cur_year,cur_mo+1,0).getDate();
+
+    if (!(i_mo in day_parity)) {
+      day_parity[i_mo] = {};
+    }
+
+    for (let day_idx=0; day_idx < 31; day_idx++) {
+      if (day_idx >= nday_in_mo) { break; }
+
+      day_parity[i_mo][day_idx] = week_parity;
+
+      let dt = new Date(cur_year, cur_mo, day_idx+1);
+      if (dt.getDay() == 0) {
+        week_parity = 1-week_parity;
+      }
+
+    }
+  }
+
+  let tbody = document.getElementById("ui_tbody");
+  for (let idx=0; idx<31; idx++) {
+
+    let tr = H.tr();
+    if ((typeof NEATOCAL_PARAM.cell_height !== "undefined") &&
+        (NEATOCAL_PARAM.cell_height != null) &&
+        (NEATOCAL_PARAM.cell_height != "")) {
+      tr.style.height = NEATOCAL_PARAM.cell_height;
+    }
+
+
+    let cur_year = year;
+    for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+
+      cur_year = parseInt(year) + Math.floor(i_mo/12);
+
+      let cur_mo = i_mo%12;
+
+      let nday_in_mo = new Date(cur_year,cur_mo+1,0).getDate();
+
+      let td = H.td();
+      td.style.width = (100/n_mo).toString() + "%";
+
+      td.id = "ui_" + fmt_date(cur_year, cur_mo+1, idx+1);
+
+      if (idx < nday_in_mo) {
+
+        let dt = new Date(cur_year, cur_mo, idx+1);
+
+        let d = NEATOCAL_PARAM.weekday_code[ dt.getDay() ];
+
+        if (day_parity[i_mo][idx]) {
+          td.classList.add("weekend");
+        }
+
+        if ((dt.getDay() != 0) ||
+            (idx == (nday_in_mo-1))) {
+          td.style.borderBottom = '0';
+        }
+
+
+        let span_date = H.span((idx+1).toString(), "date");
+        let span_day = H.span(d, "day");
+
+        // If any param specified stylings apply, apply them.
+        // Date stylings happen before weekend_date so that
+        // the weekend_date, if specified, can override
+        //
+
+        date_styles(span_date);
+
+        //if (dt.getDay() == 0) {
+        if (NEATOCAL_PARAM.weekend_days.includes(dt.getDay())) {
+          span_date.style.color = "rgb(230,37,7)";
+          span_day.style.color = "rgb(230,37,7)";
+          weekend_styles(span_day);
+          weekend_date_styles(span_date);
+        }
+
+        else {
+          weekday_styles(span_day);
+        }
+
+        td.appendChild( span_date );
+        td.appendChild( span_day );
+
+        if ((dt.getDay() == 1) && NEATOCAL_PARAM.show_week_numbers) {
+          let span_week_no = H.span(getISOWeekNumber(dt), "date");
+          span_week_no.style.float = "right";
+          span_week_no.style.color = "rgb(230,37,7)";
+          week_styles(span_week_no);
+          td.appendChild(span_week_no);
+        }
+
+        let yyyy_mm_dd = fmt_date(cur_year, cur_mo+1, idx+1);
+        if (yyyy_mm_dd in NEATOCAL_PARAM.data) {
+          let txt = H.div();
+          txt.innerHTML = NEATOCAL_PARAM.data[yyyy_mm_dd];
+          txt.style.textAlign = "center";
+          txt.style.fontWeight = "300";
+
+          td.appendChild(txt);
+        }
+
+        // Add moon phase if enabled
+        //
+        renderMoonPhase(td, cur_year, cur_mo, idx+1);
+
+      }
+      tr.appendChild(td);
+
+    }
+
+    tbody.appendChild(tr);
+
+  }
+
+}
+
+function neatocal_default() {
+  let year      = NEATOCAL_PARAM.year;
+  let start_mo  = NEATOCAL_PARAM.start_month;
+  let n_mo      = NEATOCAL_PARAM.n_month;
+
+  let ui_tr_mo = document.getElementById("ui_tr_month_name");
+  ui_tr_mo.innerHTML = "";
+  for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+    let th_mo = H.th( NEATOCAL_PARAM.month_code[ i_mo%12 ] );
+    month_styles(th_mo);
+    ui_tr_mo.appendChild( th_mo );
+  }
+
+  let tbody = document.getElementById("ui_tbody");
+  for (let idx=0; idx<31; idx++) {
+
+    let tr = H.tr();
+    if ((typeof NEATOCAL_PARAM.cell_height !== "undefined") &&
+        (NEATOCAL_PARAM.cell_height != null) &&
+        (NEATOCAL_PARAM.cell_height != "")) {
+      tr.style.height = NEATOCAL_PARAM.cell_height;
+    }
+
+
+    let cur_year = year;
+    for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+
+      cur_year = parseInt(year) + Math.floor(i_mo/12);
+
+      let cur_mo = i_mo%12;
+
+      let nday_in_mo = new Date(cur_year,cur_mo+1,0).getDate();
+
+      let td = H.td();
+      td.style.width = (100/n_mo).toString() + "%";
+      td.id = "ui_" + fmt_date(cur_year, cur_mo+1, idx+1);
+
+      if (idx < nday_in_mo) {
+
+        let dt = new Date(cur_year, cur_mo, idx+1);
+
+        let d = NEATOCAL_PARAM.weekday_code[ dt.getDay() ];
+
+        //if ((dt.getDay() == 0) ||
+        //    (dt.getDay() == 6)) {
+        if (NEATOCAL_PARAM.weekend_days.includes(dt.getDay())) {
+          td.classList.add("weekend");
+        }
+
+        let span_date = H.span((idx+1).toString(), "date");
+        let span_day = H.span(d, "day");
+
+        // If any param specified stylings apply, apply them.
+        // Date stylings happen before weekend_date so that
+        // the weekend_date, if specified, can override
+        //
+
+        date_styles(span_date);
+
+        if ((dt.getDay() == 0) ||
+            (dt.getDay() == 6)) {
+          weekend_styles(span_day);
+          weekend_date_styles(span_date);
+        }
+
+        else {
+          weekday_styles(span_day);
+        }
+
+        td.appendChild( span_date );
+        td.appendChild( span_day );
+
+        if ((dt.getDay() == 1) && NEATOCAL_PARAM.show_week_numbers) {
+          let span_week_no = H.span(getISOWeekNumber(dt), "date");
+          span_week_no.style.float = "right";
+          span_week_no.style.color = "rgb(230,37,7)";
+          week_styles(span_week_no);
+          td.appendChild(span_week_no);
+        }
+
+        let yyyy_mm_dd = fmt_date(cur_year, cur_mo+1, idx+1);
+        if (yyyy_mm_dd in NEATOCAL_PARAM.data) {
+          let txt = H.div();
+          txt.innerHTML = NEATOCAL_PARAM.data[yyyy_mm_dd];
+          txt.style.textAlign = "center";
+          txt.style.fontWeight = "300";
+          td.appendChild(txt);
+        }
+
+        // Add moon phase if enabled
+        //
+        renderMoonPhase(td, cur_year, cur_mo, idx+1);
+
+      }
+      tr.appendChild(td);
+
+    }
+
+    tbody.appendChild(tr);
+
+  }
+
+}
+
+function fmt_date(y,m,d) {
+  let res = y.toString() + "-";
+  if (m<10) {
+    res += "0";
+  }
+  res += m.toString() + "-";
+  if (d < 10) {
+    res += "0";
+  }
+  res += d.toString();
+  return res;
+}
+
+function getISOWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
+  // Set to nearest Thursday: current date + 4 - current day number (Mon=1, Sun=7)
+  //
+
+  // Convert Sunday from 0 to 7
+  //
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+
+  // Get first day of year
+  //
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+
+  // Calculate full weeks from year start to nearest Thursday
+  //
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+function neatocal_aligned_weekdays() {
+  let year      = parseInt(NEATOCAL_PARAM.year);
+  let start_mo  = parseInt(NEATOCAL_PARAM.start_month);
+  let n_mo      = parseInt(NEATOCAL_PARAM.n_month);
+
+  let ui_tr_mo = document.getElementById("ui_tr_month_name");
+  ui_tr_mo.innerHTML = "";
+  for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+    let th_mo = H.th( NEATOCAL_PARAM.month_code[ i_mo%12 ] );
+    month_styles(th_mo);
+    ui_tr_mo.appendChild( th_mo );
+  }
+
+  // start_day, when to start the first day in the month.
+  // day_in_mo_start is the number of days past the start_day
+  //   the month starts, so we know how much to skip over when
+  //   displaying the aligned cells.
+  //
+  let max_start = -1;
+  let start_day = NEATOCAL_PARAM.start_day;
+  let day_in_mo_start = [];
+  for (let i=0; i<n_mo; i++) { day_in_mo_start.push(0); }
+  for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+    let cur_year = parseInt(year) + Math.floor(i_mo/12);
+    let cur_mo = i_mo%12;
+    let s = new Date(cur_year, cur_mo, 1).getDay();
+    day_in_mo_start[i_mo - start_mo] = s;
+
+    if (day_in_mo_start[i_mo - start_mo] > max_start) {
+      max_start = day_in_mo_start[i_mo - start_mo];
+    }
+  }
+
+  let tbody = document.getElementById("ui_tbody");
+  for (let idx=0; idx<42; idx++) {
+
+    let tr = H.tr();
+    if ((typeof NEATOCAL_PARAM.cell_height !== "undefined") &&
+        (NEATOCAL_PARAM.cell_height != null) &&
+        (NEATOCAL_PARAM.cell_height != "")) {
+      tr.style.height = NEATOCAL_PARAM.cell_height;
+    }
+
+    let cur_year = year;
+    for (let i_mo = start_mo; i_mo < (start_mo+n_mo); i_mo++) {
+
+      cur_year = parseInt(year) + Math.floor(i_mo/12);
+
+      // cur_mo is the month in the current year
+      // nday_in_mo is the number of days in the month under consideration
+      // day_idx is the day of the month this cell would fall in,
+      //  which can be out of bounds (less than 0 or greater than the number of
+      //  days in the month)
+      //
+      let cur_mo = i_mo%12;
+      let nday_in_mo = new Date(cur_year,cur_mo+1,0).getDate();
+      let day_idx = idx - ((day_in_mo_start[i_mo - start_mo] - start_day + 7)%7);
+
+      let td = H.td();
+      td.style.width = (100/n_mo).toString() + "%";
+      td.id = "ui_" + fmt_date(cur_year, cur_mo+1, day_idx+1);
+
+      // if our day falls within bounds, we decorate the td with the appropriate
+      // values
+      //
+      if ((day_idx >= 0) &&
+          (day_idx < nday_in_mo)) {
+
+        let dt = new Date(cur_year, cur_mo, day_idx+1);
+
+        let wd_code = NEATOCAL_PARAM.weekday_code[ dt.getDay() ];
+
+        // If it's a weekend (Su,Sa), add the 'weekend' class to allow for highlighting
+        //
+        //if ((dt.getDay() == 0) ||
+        //    (dt.getDay() == 6)) {
+        if (NEATOCAL_PARAM.weekend_days.includes(dt.getDay())) {
+          td.classList.add("weekend");
+        }
+
+
+        // date - day in month
+        // day  - name of weekday (e.g. Su,M,T,W,R,F,Sa)
+        //
+        let span_date = H.span((day_idx+1).toString(), "date");
+        let span_day = H.span(wd_code, "day");
+
+        // If any param specified stylings apply, apply them.
+        // Date stylings happen before weekend_date so that
+        // the weekend_date, if specified, can override
+        //
+
+        date_styles(span_date);
+
+        if ((dt.getDay() == 0) ||
+            (dt.getDay() == 6)) {
+          weekend_styles(span_day);
+          weekend_date_styles(span_date);
+        }
+
+        else {
+          weekday_styles(span_day);
+        }
+
+        td.appendChild( span_date );
+        td.appendChild( span_day );
+
+        if ((dt.getDay() == 1) && NEATOCAL_PARAM.show_week_numbers) {
+          let span_week_no = H.span(getISOWeekNumber(dt), "date");
+          span_week_no.style.float = "right";
+          span_week_no.style.color = "rgb(230,37,7)";
+          week_styles(span_week_no);
+          td.appendChild(span_week_no);
+        }
+
+        let yyyy_mm_dd = fmt_date(cur_year, cur_mo+1, day_idx+1);
+        if (yyyy_mm_dd in NEATOCAL_PARAM.data) {
+          let txt = H.div();
+          txt.innerHTML = NEATOCAL_PARAM.data[yyyy_mm_dd];
+          txt.style.textAlign = "center";
+          txt.style.fontWeight = "300";
+          td.appendChild(txt);
+        }
+
+        // Add moon phase if enabled
+        //
+        renderMoonPhase(td, cur_year, cur_mo, day_idx+1);
+
+      }
+      tr.appendChild(td);
+
+    }
+
+    tbody.appendChild(tr);
+  }
+
+}
+
+function neatocal_post_process() {
+  let highlight_color = NEATOCAL_PARAM.highlight_color;
+  let x = document.getElementsByClassName("weekend");
+  for (let i = 0; i < x.length; i++) {
+    x[i].style.background = highlight_color;
+  }
+
+  if ("color_cell" in NEATOCAL_PARAM) {
+    let color_cell = NEATOCAL_PARAM.color_cell;
+
+    for (let i=0; i < color_cell.length; i++) {
+      let ele = document.getElementById("ui_" + color_cell[i].date);
+      if ((typeof ele === "undefined") || (ele == null)) { continue; }
+      ele.style.background = color_cell[i].color;
+    }
+  }
+}
+
+function loadXHR(url, _cb, _errcb) {
+  let xhr = new XMLHttpRequest();
+
+  if (typeof _errcb !== "undefined") {
+    xhr.addEventListener("error", _errcb);
+  }
+
+  xhr.addEventListener("loadend", _cb);
+  xhr.open("GET", url);
+  xhr.send();
+  return xhr;
+}
+
+function neatocal_parse_data_error(raw) {
+  console.log("error:", raw);
+}
+
+function neatocal_override_param(param, data) {
+
+  let admissible_param = [
+    "help",
+
+    "year",
+    "layout",
+
+    "start_day",
+    "start_month",
+    "n_month",
+
+    "weekday_code",
+    "month_code",
+
+    "weekend_days",
+
+    "language",
+
+    "show_moon_phase",
+    "moon_phase_style",
+    "moon_phase_position",
+    "moon_phase_display",
+
+    "cell_height",
+    "highlight_color",
+
+    "year_font_size",
+    "year_font_weight",
+    "year_foreground_color",
+    "year_background_color",
+
+    "month_font_size",
+    "month_font_weight",
+    "month_foreground_color",
+    "month_background_color",
+
+    "weekday_font_size",
+    "weekday_font_weight",
+    "weekday_foreground_color",
+    "weekday_background_color",
+
+    "weekend_font_size",
+    "weekend_font_weight",
+    "weekend_foreground_color",
+    "weekend_background_color",
+
+    "week_font_size",
+    "week_font_weight",
+    "week_foreground_color",
+    "week_background_color",
+
+    "date_font_size",
+    "date_font_weight",
+    "date_foreground_color",
+    "date_background_color",
+
+    "weekend_date_font_size",
+    "weekend_date_font_weight",
+    "weekend_date_foreground_color",
+    "weekend_date_background_color"
+
+  ];
+
+  for (let idx = 0; idx < admissible_param.length; idx++) {
+    let key = admissible_param[idx];
+
+    if (key in data) {
+      param[key] = data[key];
+    }
+  }
+
+  if ("color_cell" in data) {
+    param.color_cell = data.color_cell;
+  }
+
+  return param;
+}
+
+function neatocal_parse_data(raw) {
+
+  if (raw.type == "loadend") {
+
+    if ((raw.target.readyState == 4) &&
+        (raw.target.status == 200)) {
+
+      try {
+        let json_data = JSON.parse(raw.target.response);
+        NEATOCAL_PARAM.data = json_data;
+
+        if (typeof NEATOCAL_PARAM.data.param !== "undefined") {
+          neatocal_override_param(NEATOCAL_PARAM, NEATOCAL_PARAM.data.param);
+        }
+      }
+      catch (e) {
+        console.log("error parsing data file:", e);
+      }
+
+      neatocal_render();
+
+    }
+
+    // default to render
+    //
+    if ((raw.target.readyState == 4) &&
+        (raw.target.status == 404)) {
+      neatocal_render();
+    }
+
+  }
+
+}
+
+function neatocal_init() {
+  let sp = new URLSearchParams(window.location.search);
+
+  // peel off parameters from URL
+  //
+
+  let help_param = sp.get("help");
+  let year_param = sp.get("year");
+  let layout_param = sp.get("layout");
+  let start_month_param = sp.get("start_month");
+  let n_month_param = sp.get("n_month");
+  let start_day_param = sp.get("start_day");
+  let highlight_color_param = sp.get("highlight_color");
+  let cell_height_param = sp.get("cell_height");
+  let weekday_code_param = sp.get("weekday_code");
+  let month_code_param = sp.get("month_code");
+  let language_param = sp.get("language");
+  let show_week_numbers_param = sp.get("show_week_numbers");
+
+  let weekend_days_param = sp.get("weekend_days");
+
+  // Moon phase parameters
+  //
+  let show_moon_phase_param = sp.get("show_moon_phase");
+  let moon_phase_style_param = sp.get("moon_phase_style");
+  let moon_phase_position_param = sp.get("moon_phase_position");
+  let moon_phase_display_param = sp.get("moon_phase_display");
+
+  // fiddly stylings
+  //
+  let _ele_pfx = [ "year", "month", "weekday", "weekend", "week", "date", "weekend_date" ];
+  let _ele_sfx = [ "font_size", "font_weight", "foreground_color", "background_color" ];
+  for (let i_p=0; i_p<_ele_pfx.length; i_p++) {
+    for (let i_s=0; i_s<_ele_sfx.length; i_s++) {
+      let _ele_name = _ele_pfx[i_p] + "_" + _ele_sfx[i_s];
+      let _ele_param = sp.get(_ele_name);
+
+      if ((_ele_param != null) &&
+          (typeof _ele_param !== "undefined")) {
+        NEATOCAL_PARAM[_ele_name] = _ele_param;
+      }
+
+    }
+  }
+
+  // JSON data file
+  //
+  let datafn_param = sp.get("data");
+
+  //---
+
+  let data_fn = "";
+  if ((datafn_param != null) &&
+      (typeof datafn_param !== "undefined")) {
+    data_fn = datafn_param;
+  }
+  NEATOCAL_PARAM.data_fn = data_fn;
+
+  //---
+
+  if ((help_param != null) &&
+      (typeof help_param !== "undefined")) {
+    let ui_info = document.getElementById("ui_info");
+    ui_info.style.display = '';
+  }
+
+  //---
+
+  let year = new Date().getFullYear();
+  if ((year_param != null) &&
+      (typeof year_param !== "undefined")) {
+    year = year_param;
+  }
+  NEATOCAL_PARAM.year = year;
+
+  //---
+
+  let layout = NEATOCAL_PARAM.layout;
+  if ((layout_param != null) &&
+      (typeof layout_param !== "undefined")) {
+    _l = sp.get("layout");
+    if      (_l == "default")           { layout = "default"; }
+    else if (_l == "aligned-weekdays")  { layout = "aligned-weekdays"; }
+    else if (_l == "hallon-almanackan") {
+      layout = "hallon-almanackan";
+      NEATOCAL_PARAM.show_week_numbers = true;
+      NEATOCAL_PARAM.weekend_days = [0];
+    }
+  }
+  NEATOCAL_PARAM.layout = layout;
+
+  //---
+
+  let start_month = NEATOCAL_PARAM.start_month;
+  if ((start_month_param != null) &&
+      (typeof start_month_param !== "undefined")) {
+    start_month = parseInt(start_month_param);
+    if (isNaN(start_month)) {
+      start_month = 0;
+    }
+  }
+  NEATOCAL_PARAM.start_month = start_month;
+
+  //---
+
+  let n_month = NEATOCAL_PARAM.n_month;
+  if ((n_month_param != null) &&
+      (typeof n_month_param !== "undefined")) {
+    n_month = parseInt(n_month_param);
+    if (isNaN(n_month)) {
+      n_month = 0;
+    }
+  }
+  NEATOCAL_PARAM.n_month = n_month;
+
+  //---
+
+  let start_day = NEATOCAL_PARAM.start_day;
+  if ((start_day_param != null) &&
+      (typeof start_day_param !== "undefined")) {
+    start_day = parseInt(start_day_param);
+    if (isNaN(start_day)) {
+      start_day = 0;
+    }
+  }
+  NEATOCAL_PARAM.start_day = start_day;
+
+  //---
+
+  let highlight_color = NEATOCAL_PARAM.highlight_color;
+  if ((highlight_color_param != null) &&
+      (typeof highlight_color_param !== "undefined")) {
+    highlight_color = highlight_color_param;
+    if (highlight_color.match( /^[\da-fA-F]+/ )) {
+      highlight_color = "#" + highlight_color;
+    }
+  }
+  NEATOCAL_PARAM.highlight_color = highlight_color;
+
+  //---
+
+  let cell_height = NEATOCAL_PARAM.cell_height;
+  if ((cell_height_param != null) &&
+      (typeof cell_height_param !== "undefined")) {
+    cell_height = cell_height_param;
+  }
+  NEATOCAL_PARAM.cell_height = cell_height;
+
+  //---
+
+  // language fills out the month/day codes and happens
+  // before so it can be overriden by month day code
+  // specification.
+  //
+  if ((language_param != null) &&
+      (typeof language_param !== "undefined")) {
+
+    for (let day_idx=0; day_idx<7; day_idx++) {
+      NEATOCAL_PARAM.weekday_code[day_idx] = localized_day(language_param, day_idx);
+    }
+
+    for (let mo_idx=0; mo_idx<12; mo_idx++) {
+      NEATOCAL_PARAM.month_code[mo_idx] = localized_month(language_param, mo_idx);
+    }
+  }
+
+  //---
+
+  let weekday_code = NEATOCAL_PARAM.weekday_code;
+  if ((weekday_code_param != null) &&
+      (typeof weekday_code_param !== "undefined")) {
+
+    weekday_code = weekday_code_param.split(",");
+
+    // padd out with blank
+    //
+    for (let i=weekday_code.length; i<7; i++) {
+      weekday_code.push("");
+    }
+
+  }
+  NEATOCAL_PARAM.weekday_code = weekday_code;
+
+  //---
+
+  let month_code = NEATOCAL_PARAM.month_code;
+  if ((month_code_param != null) &&
+      (typeof month_code_param !== "undefined")) {
+
+    month_code = month_code_param.split(",");
+
+    // padd out with blank
+    //
+    for (let i=month_code.length; i<7; i++) {
+      month_code.push("");
+    }
+
+  }
+  NEATOCAL_PARAM.month_code = month_code;
+
+  //---
+
+  // thanks to https://github.com/fawaz-alesayi/neatocal
+  //
+  if ((weekend_days_param != null) &&
+      (typeof weekend_days_param !== "undefined")) {
+    let days = weekend_days_param.split(",").map(d => parseInt(d.trim()));
+    NEATOCAL_PARAM.weekend_days = days.filter(d => !isNaN(d) && d >= 0 && d <= 6);
+  }
+
+  // hallon-almanackan defaults to showing week numbers.
+  // If the showing week numbers is specified, use user specified value,
+  // whether true or false, otherwise, leave it alone.
+  //
+  if ((show_week_numbers_param != null) &&
+      (typeof show_week_numbers_param !== "undefined")) {
+    NEATOCAL_PARAM.show_week_numbers = (show_week_numbers_param === "true");
+  }
+
+  //---
+
+  // Moon phase parameters
+  //
+  let show_moon_phase = NEATOCAL_PARAM.show_moon_phase;
+  if ((show_moon_phase_param != null) &&
+      (typeof show_moon_phase_param !== "undefined")) {
+    show_moon_phase = (show_moon_phase_param === "true" || show_moon_phase_param === "1");
+  }
+  NEATOCAL_PARAM.show_moon_phase = show_moon_phase;
+
+  //---
+
+  let moon_phase_style = NEATOCAL_PARAM.moon_phase_style;
+  if ((moon_phase_style_param != null) &&
+      (typeof moon_phase_style_param !== "undefined")) {
+    if (moon_phase_style_param === "css" ||
+        moon_phase_style_param === "symbol" ||
+        moon_phase_style_param === "name") {
+      moon_phase_style = moon_phase_style_param;
+    }
+  }
+  NEATOCAL_PARAM.moon_phase_style = moon_phase_style;
+
+  //---
+
+  let moon_phase_position = NEATOCAL_PARAM.moon_phase_position;
+  if ((moon_phase_position_param != null) &&
+      (typeof moon_phase_position_param !== "undefined")) {
+    if (moon_phase_position_param === "below" ||
+        moon_phase_position_param === "inline") {
+      moon_phase_position = moon_phase_position_param;
+    }
+  }
+  NEATOCAL_PARAM.moon_phase_position = moon_phase_position;
+
+  //---
+
+  let moon_phase_display = NEATOCAL_PARAM.moon_phase_display;
+  if ((moon_phase_display_param != null) &&
+      (typeof moon_phase_display_param !== "undefined")) {
+    if (moon_phase_display_param === "all" ||
+        moon_phase_display_param === "changes") {
+      moon_phase_display = moon_phase_display_param;
+    }
+  }
+  NEATOCAL_PARAM.moon_phase_display = moon_phase_display;
+
+  //---
+
+  // if we have a data file, short circuit to wait till load.
+  // neatocal_parse_data will call neatocal_render to render the
+  // calendar.
+  //
+  if (NEATOCAL_PARAM.data_fn) {
+    loadXHR( NEATOCAL_PARAM.data_fn, neatocal_parse_data, neatocal_parse_data_error );
+    return;
+  }
+
+  // no data file, just render
+  //
+  neatocal_render();
+}
+
+function neatocal_render() {
+
+  let cur_start_month = NEATOCAL_PARAM.start_month;
+  let month_remain = NEATOCAL_PARAM.n_month;
+  let s_year = parseInt(NEATOCAL_PARAM.year);
+  let e_year = parseInt(NEATOCAL_PARAM.year) + Math.floor((cur_start_month + month_remain-1)/12)
+
+  let layout = NEATOCAL_PARAM.layout;
+
+  let year_fraction_tot = 0;
+  let year_fraction = [];
+  for ( let y = s_year; y <= e_year; y++ ) {
+    let del_mo = (((cur_start_month + month_remain) > 12) ? (12-cur_start_month) : (month_remain));
+    year_fraction.push( del_mo );
+    cur_start_month = 0;
+    month_remain -= del_mo;
+
+    year_fraction_tot += del_mo;
+  }
+
+  for (let i=0; i < year_fraction.length; i++) {
+    year_fraction[i] /= year_fraction_tot;
+  }
+
+  // if we only have one year, put it in the center
+  // otherwise find the proportion of other years
+  //   and adjust the year header appropriately
+
+  let ui_year = document.getElementById("ui_year");
+  ui_year.innerHTML = "";
+
+  for ( let y = s_year, idx = 0; y <= e_year; y++, idx++) {
+    let span = H.span();
+    span.innerHTML = y.toString();
+    span.style["display"] = "inline-block";
+    span.style["width"] = (100*year_fraction[idx]).toString() + "%";
+    span.style["justify-content"] = "center";
+    span.style["text-align"] = "center";
+    span.style["margin"] = "0 0 .5em 0";
+
+    year_styles(span);
+
+    ui_year.appendChild( span );
+  }
+
+  //---
+
+  if (layout == "aligned-weekdays") {
+    neatocal_aligned_weekdays();
+  }
+  else if (layout == "hallon-almanackan") {
+    neatocal_hallon_almanackan();
+  }
+  else {
+    neatocal_default();
+  }
+
+  neatocal_post_process();
+}
+
+</script>
+
+<style>
+  body {
+    font-family: 'Oswald', sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* 탭 스타일 */
+  .tab-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .tab-btn:hover {
+    background: #e0e0e0;
+  }
+
+  .tab-btn.active {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.4);
+  }
+
+  /* 캘린더 컨테이너 */
+  .calendar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  #ui_table td div {
+    display: inline;
+    margin-left: 4px;
+    font-size: 0.8em;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 24px;
+    margin-top: 20px;
+    font-size: 11px;
+    padding: 10px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .legend-label {
+    color: #666;
+  }
+
+  .legend-item {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  /* 현재 선택된 이름 표시 */
+  .current-name {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+</style>
+
+</head>
+<body>
+
+  <!-- 탭 버튼 -->
+  <div class="tab-container">
+      <button class="tab-btn active" data-name="세용">세용</button>
+      <button class="tab-btn " data-name="보미">보미</button>
+      <button class="tab-btn " data-name="은비">은비</button>
+      <button class="tab-btn " data-name="진환">진환</button>
+      <button class="tab-btn " data-name="재일">재일</button>
+      <button class="tab-btn " data-name="재현">재현</button>
+      <button class="tab-btn " data-name="영수">영수</button>
+      <button class="tab-btn " data-name="지희">지희</button>
+      <button class="tab-btn " data-name="준무">준무</button>
+  </div>
+
+  <div class="calendar-container">
+    <!-- 현재 선택된 이름 -->
+    <div class="current-name" id="currentName">세용</div>
+
+    <!-- 연도 표시 -->
+    <div id="ui_year" style='width:100%;'>
+      <span style='display:inline-block; width:100%; justify-content:center; text-align:center; margin: 0 0 .5em 0;'>2025</span>
+    </div>
+
+    <!-- 캘린더 테이블 -->
+    <table id='ui_table'>
+      <thead id='ui_thead'>
+        <tr id='ui_tr_month_name'>
+          <th>Jan</th>
+          <th>Feb</th>
+          <th>Mar</th>
+          <th>Apr</th>
+          <th>May</th>
+          <th>Jun</th>
+          <th>Jul</th>
+          <th>Aug</th>
+          <th>Sep</th>
+          <th>Oct</th>
+          <th>Nov</th>
+          <th>Dec</th>
+        </tr>
+      </thead>
+      <tbody id='ui_tbody'>
+      </tbody>
+    </table>
+
+    <!-- 범례 -->
+    <div class="legend">
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #ef4444;"></div>
+        <span class="legend-label">topaz</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #3b82f6;"></div>
+        <span class="legend-label">EvoRev2</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #22c55e;"></div>
+        <span class="legend-label">vos</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #f59e0b;"></div>
+        <span class="legend-label">ott</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #8b5cf6;"></div>
+        <span class="legend-label">netmeter</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item" style="background-color: #06b6d4;"></div>
+        <span class="legend-label">xray</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+<script>
+  // 모든 캘린더 데이터
+  var ALL_CALENDAR_DATA = {"세용": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-12", "color": "#ef4444"}, {"date": "2025-01-13", "color": "#ef4444"}, {"date": "2025-01-14", "color": "#ef4444"}, {"date": "2025-01-15", "color": "#ef4444"}, {"date": "2025-01-16", "color": "#ef4444"}, {"date": "2025-01-21", "color": "#ef4444"}, {"date": "2025-01-22", "color": "#ef4444"}, {"date": "2025-01-23", "color": "#ef4444"}, {"date": "2025-01-24", "color": "#3b82f6"}, {"date": "2025-01-25", "color": "#3b82f6"}, {"date": "2025-01-26", "color": "#3b82f6"}, {"date": "2025-01-28", "color": "#3b82f6"}, {"date": "2025-02-01", "color": "#ef4444"}, {"date": "2025-02-02", "color": "#8b5cf6"}, {"date": "2025-02-04", "color": "#8b5cf6"}, {"date": "2025-02-10", "color": "#ef4444"}, {"date": "2025-02-12", "color": "#ef4444"}, {"date": "2025-02-14", "color": "#ef4444"}, {"date": "2025-02-15", "color": "#ef4444"}, {"date": "2025-02-16", "color": "#ef4444"}, {"date": "2025-02-17", "color": "#ef4444"}, {"date": "2025-02-18", "color": "#ef4444"}, {"date": "2025-02-19", "color": "#ef4444"}, {"date": "2025-02-20", "color": "#ef4444"}, {"date": "2025-02-21", "color": "#ef4444"}, {"date": "2025-02-22", "color": "#ef4444"}, {"date": "2025-02-24", "color": "#ef4444"}, {"date": "2025-02-25", "color": "#3b82f6"}, {"date": "2025-02-27", "color": "#ef4444"}, {"date": "2025-02-28", "color": "#f59e0b"}, {"date": "2025-03-05", "color": "#ef4444"}, {"date": "2025-03-07", "color": "#3b82f6"}, {"date": "2025-03-13", "color": "#3b82f6"}, {"date": "2025-03-18", "color": "#3b82f6"}, {"date": "2025-03-19", "color": "#3b82f6"}, {"date": "2025-03-20", "color": "#3b82f6"}, {"date": "2025-03-28", "color": "#3b82f6"}, {"date": "2025-03-29", "color": "#f59e0b"}, {"date": "2025-03-30", "color": "#3b82f6"}, {"date": "2025-03-31", "color": "#3b82f6"}, {"date": "2025-04-01", "color": "#f59e0b"}, {"date": "2025-04-02", "color": "#3b82f6"}, {"date": "2025-04-03", "color": "#f59e0b"}, {"date": "2025-04-04", "color": "#3b82f6"}, {"date": "2025-04-05", "color": "#3b82f6"}, {"date": "2025-04-06", "color": "#3b82f6"}, {"date": "2025-04-08", "color": "#3b82f6"}, {"date": "2025-04-09", "color": "#3b82f6"}, {"date": "2025-04-10", "color": "#ef4444"}, {"date": "2025-04-11", "color": "#ef4444"}, {"date": "2025-04-12", "color": "#3b82f6"}, {"date": "2025-04-13", "color": "#3b82f6"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#3b82f6"}, {"date": "2025-04-18", "color": "#ef4444"}, {"date": "2025-04-19", "color": "#ef4444"}, {"date": "2025-04-20", "color": "#3b82f6"}, {"date": "2025-04-22", "color": "#3b82f6"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-24", "color": "#3b82f6"}, {"date": "2025-04-26", "color": "#3b82f6"}, {"date": "2025-04-28", "color": "#3b82f6"}, {"date": "2025-04-29", "color": "#3b82f6"}, {"date": "2025-04-30", "color": "#3b82f6"}, {"date": "2025-05-01", "color": "#3b82f6"}, {"date": "2025-05-02", "color": "#3b82f6"}, {"date": "2025-05-03", "color": "#3b82f6"}, {"date": "2025-05-06", "color": "#3b82f6"}, {"date": "2025-05-07", "color": "#3b82f6"}, {"date": "2025-05-08", "color": "#3b82f6"}, {"date": "2025-05-09", "color": "#3b82f6"}, {"date": "2025-05-11", "color": "#3b82f6"}, {"date": "2025-05-12", "color": "#3b82f6"}, {"date": "2025-05-14", "color": "#3b82f6"}, {"date": "2025-05-15", "color": "#3b82f6"}, {"date": "2025-05-16", "color": "#3b82f6"}, {"date": "2025-05-17", "color": "#ef4444"}, {"date": "2025-05-18", "color": "#ef4444"}, {"date": "2025-05-20", "color": "#3b82f6"}, {"date": "2025-05-21", "color": "#3b82f6"}, {"date": "2025-05-22", "color": "#3b82f6"}, {"date": "2025-05-23", "color": "#3b82f6"}, {"date": "2025-05-24", "color": "#3b82f6"}, {"date": "2025-05-25", "color": "#3b82f6"}, {"date": "2025-05-26", "color": "#3b82f6"}, {"date": "2025-05-27", "color": "#3b82f6"}, {"date": "2025-05-28", "color": "#3b82f6"}, {"date": "2025-05-29", "color": "#3b82f6"}, {"date": "2025-05-30", "color": "#3b82f6"}, {"date": "2025-06-02", "color": "#f59e0b"}, {"date": "2025-06-03", "color": "#f59e0b"}, {"date": "2025-06-04", "color": "#3b82f6"}, {"date": "2025-06-10", "color": "#f59e0b"}, {"date": "2025-06-14", "color": "#ef4444"}, {"date": "2025-06-16", "color": "#3b82f6"}, {"date": "2025-06-17", "color": "#3b82f6"}, {"date": "2025-06-18", "color": "#3b82f6"}, {"date": "2025-06-19", "color": "#ef4444"}, {"date": "2025-06-25", "color": "#ef4444"}, {"date": "2025-06-26", "color": "#ef4444"}, {"date": "2025-06-27", "color": "#3b82f6"}, {"date": "2025-06-30", "color": "#ef4444"}, {"date": "2025-07-07", "color": "#06b6d4"}, {"date": "2025-07-08", "color": "#f59e0b"}, {"date": "2025-07-09", "color": "#ef4444"}, {"date": "2025-07-18", "color": "#8b5cf6"}, {"date": "2025-07-20", "color": "#22c55e"}, {"date": "2025-07-21", "color": "#22c55e"}, {"date": "2025-07-22", "color": "#8b5cf6"}, {"date": "2025-07-23", "color": "#8b5cf6"}, {"date": "2025-07-24", "color": "#8b5cf6"}, {"date": "2025-07-25", "color": "#22c55e"}, {"date": "2025-07-28", "color": "#3b82f6"}, {"date": "2025-07-29", "color": "#8b5cf6"}, {"date": "2025-07-30", "color": "#22c55e"}, {"date": "2025-07-31", "color": "#22c55e"}, {"date": "2025-08-05", "color": "#22c55e"}, {"date": "2025-08-08", "color": "#22c55e"}, {"date": "2025-08-11", "color": "#22c55e"}, {"date": "2025-08-12", "color": "#22c55e"}, {"date": "2025-08-13", "color": "#8b5cf6"}, {"date": "2025-08-19", "color": "#22c55e"}, {"date": "2025-08-20", "color": "#f59e0b"}, {"date": "2025-08-21", "color": "#22c55e"}, {"date": "2025-08-23", "color": "#22c55e"}, {"date": "2025-08-24", "color": "#22c55e"}, {"date": "2025-08-25", "color": "#22c55e"}, {"date": "2025-08-27", "color": "#22c55e"}, {"date": "2025-08-28", "color": "#22c55e"}, {"date": "2025-09-01", "color": "#ef4444"}, {"date": "2025-09-10", "color": "#22c55e"}, {"date": "2025-09-15", "color": "#22c55e"}, {"date": "2025-09-17", "color": "#22c55e"}, {"date": "2025-09-18", "color": "#22c55e"}, {"date": "2025-09-19", "color": "#f59e0b"}, {"date": "2025-09-22", "color": "#22c55e"}, {"date": "2025-09-23", "color": "#f59e0b"}, {"date": "2025-09-24", "color": "#ef4444"}, {"date": "2025-09-30", "color": "#ef4444"}, {"date": "2025-10-01", "color": "#ef4444"}, {"date": "2025-10-07", "color": "#22c55e"}, {"date": "2025-10-09", "color": "#22c55e"}, {"date": "2025-10-13", "color": "#22c55e"}, {"date": "2025-10-16", "color": "#22c55e"}, {"date": "2025-10-22", "color": "#ef4444"}, {"date": "2025-10-23", "color": "#ef4444"}, {"date": "2025-10-24", "color": "#22c55e"}, {"date": "2025-10-28", "color": "#06b6d4"}, {"date": "2025-10-29", "color": "#22c55e"}, {"date": "2025-10-30", "color": "#22c55e"}, {"date": "2025-11-03", "color": "#22c55e"}, {"date": "2025-11-04", "color": "#22c55e"}, {"date": "2025-11-05", "color": "#22c55e"}, {"date": "2025-11-06", "color": "#22c55e"}, {"date": "2025-11-07", "color": "#22c55e"}, {"date": "2025-11-08", "color": "#22c55e"}, {"date": "2025-11-09", "color": "#22c55e"}, {"date": "2025-11-10", "color": "#22c55e"}, {"date": "2025-11-11", "color": "#22c55e"}, {"date": "2025-11-12", "color": "#22c55e"}, {"date": "2025-11-13", "color": "#22c55e"}, {"date": "2025-11-14", "color": "#22c55e"}, {"date": "2025-11-15", "color": "#22c55e"}, {"date": "2025-11-16", "color": "#22c55e"}, {"date": "2025-11-17", "color": "#22c55e"}, {"date": "2025-11-18", "color": "#22c55e"}, {"date": "2025-11-19", "color": "#22c55e"}, {"date": "2025-11-20", "color": "#22c55e"}, {"date": "2025-11-23", "color": "#22c55e"}, {"date": "2025-11-24", "color": "#22c55e"}, {"date": "2025-11-25", "color": "#22c55e"}, {"date": "2025-11-26", "color": "#22c55e"}, {"date": "2025-11-27", "color": "#22c55e"}, {"date": "2025-11-29", "color": "#22c55e"}, {"date": "2025-11-30", "color": "#22c55e"}, {"date": "2025-12-03", "color": "#22c55e"}, {"date": "2025-12-04", "color": "#22c55e"}, {"date": "2025-12-05", "color": "#22c55e"}, {"date": "2025-12-07", "color": "#22c55e"}, {"date": "2025-12-08", "color": "#22c55e"}, {"date": "2025-12-09", "color": "#22c55e"}, {"date": "2025-12-10", "color": "#22c55e"}, {"date": "2025-12-11", "color": "#22c55e"}, {"date": "2025-12-12", "color": "#22c55e"}, {"date": "2025-12-14", "color": "#22c55e"}, {"date": "2025-12-15", "color": "#22c55e"}, {"date": "2025-12-16", "color": "#22c55e"}, {"date": "2025-12-17", "color": "#22c55e"}, {"date": "2025-12-23", "color": "#22c55e"}, {"date": "2025-12-24", "color": "#22c55e"}, {"date": "2025-12-30", "color": "#22c55e"}]}, "2025-01-12": "topaz", "2025-01-13": "topaz", "2025-01-14": "topaz", "2025-01-15": "topaz", "2025-01-16": "topaz", "2025-01-21": "topaz", "2025-01-22": "topaz", "2025-01-23": "topaz", "2025-01-24": "EvoRev2", "2025-01-25": "EvoRev2", "2025-01-26": "EvoRev2", "2025-01-28": "EvoRev2", "2025-02-01": "topaz", "2025-02-02": "netmeter", "2025-02-04": "netmeter", "2025-02-10": "topaz", "2025-02-12": "topaz", "2025-02-14": "topaz", "2025-02-15": "topaz", "2025-02-16": "topaz", "2025-02-17": "topaz", "2025-02-18": "topaz", "2025-02-19": "topaz", "2025-02-20": "topaz", "2025-02-21": "topaz", "2025-02-22": "topaz", "2025-02-24": "topaz", "2025-02-25": "EvoRev2", "2025-02-27": "topaz", "2025-02-28": "ott", "2025-03-05": "topaz", "2025-03-07": "EvoRev2", "2025-03-13": "EvoRev2", "2025-03-18": "EvoRev2", "2025-03-19": "EvoRev2", "2025-03-20": "EvoRev2", "2025-03-28": "EvoRev2", "2025-03-29": "ott", "2025-03-30": "EvoRev2", "2025-03-31": "EvoRev2", "2025-04-01": "ott", "2025-04-02": "EvoRev2", "2025-04-03": "ott", "2025-04-04": "EvoRev2", "2025-04-05": "EvoRev2", "2025-04-06": "EvoRev2", "2025-04-08": "EvoRev2", "2025-04-09": "EvoRev2", "2025-04-10": "topaz", "2025-04-11": "topaz", "2025-04-12": "EvoRev2", "2025-04-13": "EvoRev2", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "EvoRev2", "2025-04-18": "topaz", "2025-04-19": "topaz", "2025-04-20": "EvoRev2", "2025-04-22": "EvoRev2", "2025-04-23": "EvoRev2", "2025-04-24": "EvoRev2", "2025-04-26": "EvoRev2", "2025-04-28": "EvoRev2", "2025-04-29": "EvoRev2", "2025-04-30": "EvoRev2", "2025-05-01": "EvoRev2", "2025-05-02": "EvoRev2", "2025-05-03": "EvoRev2", "2025-05-06": "EvoRev2", "2025-05-07": "EvoRev2", "2025-05-08": "EvoRev2", "2025-05-09": "EvoRev2", "2025-05-11": "EvoRev2", "2025-05-12": "EvoRev2", "2025-05-14": "EvoRev2", "2025-05-15": "EvoRev2", "2025-05-16": "EvoRev2", "2025-05-17": "topaz", "2025-05-18": "topaz", "2025-05-20": "EvoRev2", "2025-05-21": "EvoRev2", "2025-05-22": "EvoRev2", "2025-05-23": "EvoRev2", "2025-05-24": "EvoRev2", "2025-05-25": "EvoRev2", "2025-05-26": "EvoRev2", "2025-05-27": "EvoRev2", "2025-05-28": "EvoRev2", "2025-05-29": "EvoRev2", "2025-05-30": "EvoRev2", "2025-06-02": "ott", "2025-06-03": "ott", "2025-06-04": "EvoRev2", "2025-06-10": "ott", "2025-06-14": "topaz", "2025-06-16": "EvoRev2", "2025-06-17": "EvoRev2", "2025-06-18": "EvoRev2", "2025-06-19": "topaz", "2025-06-25": "topaz", "2025-06-26": "topaz", "2025-06-27": "EvoRev2", "2025-06-30": "topaz", "2025-07-07": "xray", "2025-07-08": "ott", "2025-07-09": "topaz", "2025-07-18": "netmeter", "2025-07-20": "vos", "2025-07-21": "vos", "2025-07-22": "netmeter", "2025-07-23": "netmeter", "2025-07-24": "netmeter", "2025-07-25": "vos", "2025-07-28": "EvoRev2", "2025-07-29": "netmeter", "2025-07-30": "vos", "2025-07-31": "vos", "2025-08-05": "vos", "2025-08-08": "vos", "2025-08-11": "vos", "2025-08-12": "vos", "2025-08-13": "netmeter", "2025-08-19": "vos", "2025-08-20": "ott", "2025-08-21": "vos", "2025-08-23": "vos", "2025-08-24": "vos", "2025-08-25": "vos", "2025-08-27": "vos", "2025-08-28": "vos", "2025-09-01": "topaz", "2025-09-10": "vos", "2025-09-15": "vos", "2025-09-17": "vos", "2025-09-18": "vos", "2025-09-19": "ott", "2025-09-22": "vos", "2025-09-23": "ott", "2025-09-24": "topaz", "2025-09-30": "topaz", "2025-10-01": "topaz", "2025-10-07": "vos", "2025-10-09": "vos", "2025-10-13": "vos", "2025-10-16": "vos", "2025-10-22": "topaz", "2025-10-23": "topaz", "2025-10-24": "vos", "2025-10-28": "xray", "2025-10-29": "vos", "2025-10-30": "vos", "2025-11-03": "vos", "2025-11-04": "vos", "2025-11-05": "vos", "2025-11-06": "vos", "2025-11-07": "vos", "2025-11-08": "vos", "2025-11-09": "vos", "2025-11-10": "vos", "2025-11-11": "vos", "2025-11-12": "vos", "2025-11-13": "vos", "2025-11-14": "vos", "2025-11-15": "vos", "2025-11-16": "vos", "2025-11-17": "vos", "2025-11-18": "vos", "2025-11-19": "vos", "2025-11-20": "vos", "2025-11-23": "vos", "2025-11-24": "vos", "2025-11-25": "vos", "2025-11-26": "vos", "2025-11-27": "vos", "2025-11-29": "vos", "2025-11-30": "vos", "2025-12-03": "vos", "2025-12-04": "vos", "2025-12-05": "vos", "2025-12-07": "vos", "2025-12-08": "vos", "2025-12-09": "vos", "2025-12-10": "vos", "2025-12-11": "vos", "2025-12-12": "vos", "2025-12-14": "vos", "2025-12-15": "vos", "2025-12-16": "vos", "2025-12-17": "vos", "2025-12-23": "vos", "2025-12-24": "vos", "2025-12-30": "vos"}, "보미": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-02", "color": "#8b5cf6"}, {"date": "2025-01-03", "color": "#8b5cf6"}, {"date": "2025-01-07", "color": "#3b82f6"}, {"date": "2025-01-08", "color": "#8b5cf6"}, {"date": "2025-01-09", "color": "#8b5cf6"}, {"date": "2025-01-10", "color": "#8b5cf6"}, {"date": "2025-01-13", "color": "#8b5cf6"}, {"date": "2025-01-14", "color": "#ef4444"}, {"date": "2025-01-15", "color": "#ef4444"}, {"date": "2025-01-16", "color": "#ef4444"}, {"date": "2025-01-20", "color": "#ef4444"}, {"date": "2025-01-21", "color": "#ef4444"}, {"date": "2025-01-22", "color": "#ef4444"}, {"date": "2025-01-23", "color": "#6b7280"}, {"date": "2025-01-24", "color": "#6b7280"}, {"date": "2025-02-04", "color": "#3b82f6"}, {"date": "2025-02-05", "color": "#3b82f6"}, {"date": "2025-02-07", "color": "#3b82f6"}, {"date": "2025-02-10", "color": "#8b5cf6"}, {"date": "2025-02-11", "color": "#8b5cf6"}, {"date": "2025-02-12", "color": "#8b5cf6"}, {"date": "2025-02-13", "color": "#8b5cf6"}, {"date": "2025-02-17", "color": "#ef4444"}, {"date": "2025-02-19", "color": "#ef4444"}, {"date": "2025-02-20", "color": "#ef4444"}, {"date": "2025-02-25", "color": "#6b7280"}, {"date": "2025-02-28", "color": "#3b82f6"}, {"date": "2025-03-04", "color": "#3b82f6"}, {"date": "2025-03-05", "color": "#ef4444"}, {"date": "2025-03-06", "color": "#3b82f6"}, {"date": "2025-03-07", "color": "#3b82f6"}, {"date": "2025-03-10", "color": "#3b82f6"}, {"date": "2025-03-13", "color": "#3b82f6"}, {"date": "2025-03-17", "color": "#ef4444"}, {"date": "2025-03-18", "color": "#6b7280"}, {"date": "2025-03-19", "color": "#6b7280"}, {"date": "2025-03-20", "color": "#6b7280"}, {"date": "2025-03-24", "color": "#3b82f6"}, {"date": "2025-03-25", "color": "#3b82f6"}, {"date": "2025-03-26", "color": "#3b82f6"}, {"date": "2025-03-28", "color": "#6b7280"}, {"date": "2025-04-01", "color": "#3b82f6"}, {"date": "2025-04-02", "color": "#3b82f6"}, {"date": "2025-04-04", "color": "#3b82f6"}, {"date": "2025-04-07", "color": "#3b82f6"}, {"date": "2025-04-08", "color": "#3b82f6"}, {"date": "2025-04-10", "color": "#3b82f6"}, {"date": "2025-04-11", "color": "#3b82f6"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#3b82f6"}, {"date": "2025-04-18", "color": "#3b82f6"}, {"date": "2025-04-21", "color": "#3b82f6"}, {"date": "2025-04-22", "color": "#3b82f6"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-28", "color": "#3b82f6"}, {"date": "2025-04-29", "color": "#3b82f6"}, {"date": "2025-04-30", "color": "#3b82f6"}, {"date": "2025-05-07", "color": "#8b5cf6"}, {"date": "2025-05-08", "color": "#3b82f6"}, {"date": "2025-05-09", "color": "#8b5cf6"}, {"date": "2025-05-13", "color": "#3b82f6"}, {"date": "2025-05-14", "color": "#3b82f6"}, {"date": "2025-05-15", "color": "#3b82f6"}, {"date": "2025-05-16", "color": "#6b7280"}, {"date": "2025-05-19", "color": "#8b5cf6"}, {"date": "2025-05-20", "color": "#8b5cf6"}, {"date": "2025-05-23", "color": "#8b5cf6"}, {"date": "2025-06-04", "color": "#8b5cf6"}, {"date": "2025-06-05", "color": "#6b7280"}, {"date": "2025-06-09", "color": "#3b82f6"}, {"date": "2025-06-10", "color": "#3b82f6"}, {"date": "2025-06-11", "color": "#3b82f6"}, {"date": "2025-06-12", "color": "#3b82f6"}, {"date": "2025-06-13", "color": "#6b7280"}, {"date": "2025-06-23", "color": "#3b82f6"}, {"date": "2025-06-25", "color": "#3b82f6"}, {"date": "2025-06-27", "color": "#6b7280"}, {"date": "2025-07-01", "color": "#6b7280"}, {"date": "2025-07-02", "color": "#6b7280"}, {"date": "2025-07-07", "color": "#6b7280"}, {"date": "2025-07-10", "color": "#ef4444"}, {"date": "2025-07-14", "color": "#ef4444"}, {"date": "2025-07-15", "color": "#3b82f6"}, {"date": "2025-07-16", "color": "#6b7280"}, {"date": "2025-07-21", "color": "#22c55e"}, {"date": "2025-07-22", "color": "#6b7280"}, {"date": "2025-07-23", "color": "#22c55e"}, {"date": "2025-07-24", "color": "#6b7280"}, {"date": "2025-07-28", "color": "#6b7280"}, {"date": "2025-07-30", "color": "#6b7280"}, {"date": "2025-07-31", "color": "#6b7280"}, {"date": "2025-08-04", "color": "#6b7280"}, {"date": "2025-08-05", "color": "#3b82f6"}, {"date": "2025-08-06", "color": "#3b82f6"}, {"date": "2025-08-07", "color": "#6b7280"}, {"date": "2025-08-08", "color": "#6b7280"}, {"date": "2025-08-11", "color": "#3b82f6"}, {"date": "2025-08-12", "color": "#6b7280"}, {"date": "2025-08-13", "color": "#6b7280"}, {"date": "2025-08-14", "color": "#8b5cf6"}, {"date": "2025-08-21", "color": "#3b82f6"}, {"date": "2025-08-22", "color": "#3b82f6"}, {"date": "2025-08-25", "color": "#6b7280"}, {"date": "2025-08-26", "color": "#8b5cf6"}, {"date": "2025-08-27", "color": "#8b5cf6"}, {"date": "2025-08-28", "color": "#8b5cf6"}, {"date": "2025-08-29", "color": "#8b5cf6"}, {"date": "2025-09-01", "color": "#8b5cf6"}, {"date": "2025-09-02", "color": "#6b7280"}, {"date": "2025-09-03", "color": "#6b7280"}, {"date": "2025-09-04", "color": "#6b7280"}, {"date": "2025-09-05", "color": "#6b7280"}, {"date": "2025-09-08", "color": "#6b7280"}, {"date": "2025-09-09", "color": "#6b7280"}, {"date": "2025-09-12", "color": "#6b7280"}, {"date": "2025-09-17", "color": "#6b7280"}, {"date": "2025-09-23", "color": "#6b7280"}, {"date": "2025-09-25", "color": "#3b82f6"}, {"date": "2025-09-29", "color": "#6b7280"}, {"date": "2025-10-13", "color": "#3b82f6"}, {"date": "2025-10-14", "color": "#3b82f6"}, {"date": "2025-10-15", "color": "#3b82f6"}, {"date": "2025-10-16", "color": "#3b82f6"}, {"date": "2025-10-17", "color": "#3b82f6"}, {"date": "2025-10-21", "color": "#3b82f6"}, {"date": "2025-10-22", "color": "#3b82f6"}, {"date": "2025-10-23", "color": "#3b82f6"}, {"date": "2025-10-27", "color": "#6b7280"}, {"date": "2025-10-28", "color": "#6b7280"}, {"date": "2025-10-29", "color": "#6b7280"}, {"date": "2025-10-31", "color": "#6b7280"}, {"date": "2025-11-05", "color": "#ef4444"}, {"date": "2025-11-06", "color": "#ef4444"}, {"date": "2025-11-17", "color": "#ef4444"}, {"date": "2025-11-18", "color": "#ef4444"}, {"date": "2025-11-21", "color": "#ef4444"}, {"date": "2025-12-02", "color": "#ef4444"}, {"date": "2025-12-04", "color": "#ef4444"}, {"date": "2025-12-11", "color": "#22c55e"}, {"date": "2025-12-12", "color": "#22c55e"}, {"date": "2025-12-16", "color": "#f59e0b"}, {"date": "2025-12-17", "color": "#f59e0b"}]}, "2025-01-02": "netmeter", "2025-01-03": "netmeter", "2025-01-07": "EvoRev2", "2025-01-08": "netmeter", "2025-01-09": "netmeter", "2025-01-10": "netmeter", "2025-01-13": "netmeter", "2025-01-14": "topaz", "2025-01-15": "topaz", "2025-01-16": "topaz", "2025-01-20": "topaz", "2025-01-21": "topaz", "2025-01-22": "topaz", "2025-01-23": "io-ctd", "2025-01-24": "io-ctd", "2025-02-04": "EvoRev2", "2025-02-05": "EvoRev2", "2025-02-07": "EvoRev2", "2025-02-10": "netmeter", "2025-02-11": "netmeter", "2025-02-12": "netmeter", "2025-02-13": "netmeter", "2025-02-17": "topaz", "2025-02-19": "topaz", "2025-02-20": "topaz", "2025-02-25": "evo-block-list", "2025-02-28": "EvoRev2", "2025-03-04": "EvoRev2", "2025-03-05": "topaz", "2025-03-06": "EvoRev2", "2025-03-07": "EvoRev2", "2025-03-10": "EvoRev2", "2025-03-13": "EvoRev2", "2025-03-17": "topaz", "2025-03-18": "evo-block-list", "2025-03-19": "evo-block-list", "2025-03-20": "evo-block-list", "2025-03-24": "EvoRev2", "2025-03-25": "EvoRev2", "2025-03-26": "EvoRev2", "2025-03-28": "evo-block-list", "2025-04-01": "EvoRev2", "2025-04-02": "EvoRev2", "2025-04-04": "EvoRev2", "2025-04-07": "EvoRev2", "2025-04-08": "EvoRev2", "2025-04-10": "EvoRev2", "2025-04-11": "EvoRev2", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "EvoRev2", "2025-04-18": "EvoRev2", "2025-04-21": "EvoRev2", "2025-04-22": "EvoRev2", "2025-04-23": "EvoRev2", "2025-04-28": "EvoRev2", "2025-04-29": "EvoRev2", "2025-04-30": "EvoRev2", "2025-05-07": "netmeter", "2025-05-08": "EvoRev2", "2025-05-09": "netmeter", "2025-05-13": "EvoRev2", "2025-05-14": "EvoRev2", "2025-05-15": "EvoRev2", "2025-05-16": "io-ctd", "2025-05-19": "netmeter", "2025-05-20": "netmeter", "2025-05-23": "netmeter", "2025-06-04": "netmeter", "2025-06-05": "twamp-poc", "2025-06-09": "EvoRev2", "2025-06-10": "EvoRev2", "2025-06-11": "EvoRev2", "2025-06-12": "EvoRev2", "2025-06-13": "evo-block-list", "2025-06-23": "EvoRev2", "2025-06-25": "EvoRev2", "2025-06-27": "netmeter-global", "2025-07-01": "netmeter-global", "2025-07-02": "netmeter-global", "2025-07-07": "netmeter-global", "2025-07-10": "topaz", "2025-07-14": "topaz", "2025-07-15": "EvoRev2", "2025-07-16": "netmeter-global", "2025-07-21": "vos", "2025-07-22": "netmeter-global", "2025-07-23": "vos", "2025-07-24": "netmeter-global", "2025-07-28": "netmeter-global", "2025-07-30": "netmeter-global", "2025-07-31": "netmeter-global", "2025-08-04": "netmeter-global", "2025-08-05": "EvoRev2", "2025-08-06": "EvoRev2", "2025-08-07": "netmeter-global", "2025-08-08": "netmeter-global", "2025-08-11": "EvoRev2", "2025-08-12": "netmeter-global", "2025-08-13": "io-ctd", "2025-08-14": "netmeter", "2025-08-21": "EvoRev2", "2025-08-22": "EvoRev2", "2025-08-25": "netmeter-global", "2025-08-26": "netmeter", "2025-08-27": "netmeter", "2025-08-28": "netmeter", "2025-08-29": "netmeter", "2025-09-01": "netmeter", "2025-09-02": "netmeter-global", "2025-09-03": "netmeter-global", "2025-09-04": "netmeter-global", "2025-09-05": "netmeter-global", "2025-09-08": "netmeter-global", "2025-09-09": "netmeter-global", "2025-09-12": "netmeter-global", "2025-09-17": "netmeter-global", "2025-09-23": "netmeter-global", "2025-09-25": "EvoRev2", "2025-09-29": "NetAnalyzerHOME", "2025-10-13": "EvoRev2", "2025-10-14": "EvoRev2", "2025-10-15": "EvoRev2", "2025-10-16": "EvoRev2", "2025-10-17": "EvoRev2", "2025-10-21": "EvoRev2", "2025-10-22": "EvoRev2", "2025-10-23": "EvoRev2", "2025-10-27": "NetAnalyzerHOME", "2025-10-28": "NetAnalyzerHOME", "2025-10-29": "NetAnalyzerHOME", "2025-10-31": "NetAnalyzerHOME", "2025-11-05": "topaz", "2025-11-06": "topaz", "2025-11-17": "topaz", "2025-11-18": "topaz", "2025-11-21": "topaz", "2025-12-02": "topaz", "2025-12-04": "topaz", "2025-12-11": "vos", "2025-12-12": "vos", "2025-12-16": "ott", "2025-12-17": "ott"}, "은비": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-03", "color": "#3b82f6"}, {"date": "2025-01-06", "color": "#3b82f6"}, {"date": "2025-01-08", "color": "#8b5cf6"}, {"date": "2025-01-09", "color": "#3b82f6"}, {"date": "2025-01-10", "color": "#3b82f6"}, {"date": "2025-01-13", "color": "#3b82f6"}, {"date": "2025-01-14", "color": "#3b82f6"}, {"date": "2025-01-15", "color": "#3b82f6"}, {"date": "2025-01-16", "color": "#3b82f6"}, {"date": "2025-01-17", "color": "#3b82f6"}, {"date": "2025-01-20", "color": "#3b82f6"}, {"date": "2025-01-22", "color": "#3b82f6"}, {"date": "2025-01-23", "color": "#3b82f6"}, {"date": "2025-01-24", "color": "#3b82f6"}, {"date": "2025-02-04", "color": "#6b7280"}, {"date": "2025-02-05", "color": "#3b82f6"}, {"date": "2025-02-06", "color": "#3b82f6"}, {"date": "2025-02-07", "color": "#3b82f6"}, {"date": "2025-02-10", "color": "#3b82f6"}, {"date": "2025-02-11", "color": "#3b82f6"}, {"date": "2025-02-12", "color": "#3b82f6"}, {"date": "2025-02-13", "color": "#3b82f6"}, {"date": "2025-02-18", "color": "#3b82f6"}, {"date": "2025-02-20", "color": "#3b82f6"}, {"date": "2025-02-21", "color": "#3b82f6"}, {"date": "2025-02-24", "color": "#3b82f6"}, {"date": "2025-02-25", "color": "#3b82f6"}, {"date": "2025-02-27", "color": "#3b82f6"}, {"date": "2025-02-28", "color": "#3b82f6"}, {"date": "2025-03-04", "color": "#3b82f6"}, {"date": "2025-03-05", "color": "#3b82f6"}, {"date": "2025-03-06", "color": "#3b82f6"}, {"date": "2025-03-07", "color": "#3b82f6"}, {"date": "2025-03-10", "color": "#3b82f6"}, {"date": "2025-03-11", "color": "#3b82f6"}, {"date": "2025-03-12", "color": "#3b82f6"}, {"date": "2025-03-13", "color": "#3b82f6"}, {"date": "2025-03-14", "color": "#3b82f6"}, {"date": "2025-03-18", "color": "#3b82f6"}, {"date": "2025-03-20", "color": "#3b82f6"}, {"date": "2025-03-21", "color": "#3b82f6"}, {"date": "2025-03-24", "color": "#3b82f6"}, {"date": "2025-03-25", "color": "#3b82f6"}, {"date": "2025-03-27", "color": "#3b82f6"}, {"date": "2025-03-28", "color": "#3b82f6"}, {"date": "2025-03-30", "color": "#3b82f6"}, {"date": "2025-03-31", "color": "#3b82f6"}, {"date": "2025-04-02", "color": "#3b82f6"}, {"date": "2025-04-03", "color": "#3b82f6"}, {"date": "2025-04-04", "color": "#3b82f6"}, {"date": "2025-04-07", "color": "#3b82f6"}, {"date": "2025-04-08", "color": "#3b82f6"}, {"date": "2025-04-09", "color": "#3b82f6"}, {"date": "2025-04-10", "color": "#3b82f6"}, {"date": "2025-04-11", "color": "#3b82f6"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#3b82f6"}, {"date": "2025-04-18", "color": "#3b82f6"}, {"date": "2025-04-21", "color": "#3b82f6"}, {"date": "2025-04-22", "color": "#3b82f6"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-24", "color": "#3b82f6"}, {"date": "2025-04-28", "color": "#3b82f6"}, {"date": "2025-04-30", "color": "#3b82f6"}, {"date": "2025-05-02", "color": "#3b82f6"}, {"date": "2025-05-07", "color": "#3b82f6"}, {"date": "2025-05-12", "color": "#3b82f6"}, {"date": "2025-05-13", "color": "#3b82f6"}, {"date": "2025-05-14", "color": "#3b82f6"}, {"date": "2025-05-15", "color": "#3b82f6"}, {"date": "2025-05-16", "color": "#3b82f6"}, {"date": "2025-05-19", "color": "#3b82f6"}, {"date": "2025-05-20", "color": "#3b82f6"}, {"date": "2025-05-22", "color": "#3b82f6"}, {"date": "2025-05-23", "color": "#3b82f6"}, {"date": "2025-05-25", "color": "#3b82f6"}, {"date": "2025-05-26", "color": "#3b82f6"}, {"date": "2025-05-27", "color": "#3b82f6"}, {"date": "2025-05-28", "color": "#3b82f6"}, {"date": "2025-05-29", "color": "#3b82f6"}, {"date": "2025-05-30", "color": "#3b82f6"}, {"date": "2025-06-04", "color": "#3b82f6"}, {"date": "2025-06-09", "color": "#3b82f6"}, {"date": "2025-06-10", "color": "#3b82f6"}, {"date": "2025-06-11", "color": "#3b82f6"}, {"date": "2025-06-12", "color": "#3b82f6"}, {"date": "2025-06-13", "color": "#3b82f6"}, {"date": "2025-06-17", "color": "#3b82f6"}, {"date": "2025-06-18", "color": "#3b82f6"}, {"date": "2025-06-23", "color": "#3b82f6"}, {"date": "2025-06-25", "color": "#3b82f6"}, {"date": "2025-06-26", "color": "#3b82f6"}, {"date": "2025-06-27", "color": "#3b82f6"}, {"date": "2025-07-02", "color": "#3b82f6"}, {"date": "2025-07-03", "color": "#3b82f6"}, {"date": "2025-07-08", "color": "#3b82f6"}, {"date": "2025-07-09", "color": "#3b82f6"}, {"date": "2025-07-11", "color": "#6b7280"}, {"date": "2025-07-14", "color": "#6b7280"}, {"date": "2025-07-15", "color": "#3b82f6"}, {"date": "2025-07-16", "color": "#3b82f6"}, {"date": "2025-07-17", "color": "#3b82f6"}, {"date": "2025-07-18", "color": "#6b7280"}, {"date": "2025-07-20", "color": "#3b82f6"}, {"date": "2025-07-21", "color": "#3b82f6"}, {"date": "2025-07-22", "color": "#6b7280"}, {"date": "2025-07-23", "color": "#3b82f6"}, {"date": "2025-07-24", "color": "#3b82f6"}, {"date": "2025-07-29", "color": "#3b82f6"}, {"date": "2025-07-30", "color": "#3b82f6"}, {"date": "2025-07-31", "color": "#3b82f6"}, {"date": "2025-08-01", "color": "#6b7280"}, {"date": "2025-08-04", "color": "#6b7280"}, {"date": "2025-08-05", "color": "#3b82f6"}, {"date": "2025-08-07", "color": "#6b7280"}, {"date": "2025-08-08", "color": "#6b7280"}, {"date": "2025-08-12", "color": "#6b7280"}, {"date": "2025-08-13", "color": "#6b7280"}, {"date": "2025-08-14", "color": "#6b7280"}, {"date": "2025-08-19", "color": "#6b7280"}, {"date": "2025-08-20", "color": "#3b82f6"}, {"date": "2025-08-21", "color": "#3b82f6"}, {"date": "2025-08-25", "color": "#6b7280"}, {"date": "2025-08-26", "color": "#6b7280"}, {"date": "2025-08-27", "color": "#6b7280"}, {"date": "2025-08-28", "color": "#3b82f6"}, {"date": "2025-08-29", "color": "#6b7280"}, {"date": "2025-09-09", "color": "#6b7280"}, {"date": "2025-09-17", "color": "#6b7280"}, {"date": "2025-09-24", "color": "#6b7280"}, {"date": "2025-10-13", "color": "#3b82f6"}, {"date": "2025-10-15", "color": "#3b82f6"}, {"date": "2025-10-16", "color": "#3b82f6"}, {"date": "2025-10-20", "color": "#3b82f6"}, {"date": "2025-10-21", "color": "#6b7280"}, {"date": "2025-10-22", "color": "#3b82f6"}, {"date": "2025-10-24", "color": "#6b7280"}, {"date": "2025-11-03", "color": "#6b7280"}, {"date": "2025-11-04", "color": "#6b7280"}, {"date": "2025-11-06", "color": "#6b7280"}, {"date": "2025-11-07", "color": "#6b7280"}, {"date": "2025-11-10", "color": "#6b7280"}, {"date": "2025-11-13", "color": "#6b7280"}, {"date": "2025-11-17", "color": "#3b82f6"}, {"date": "2025-11-18", "color": "#3b82f6"}, {"date": "2025-11-19", "color": "#3b82f6"}, {"date": "2025-11-24", "color": "#6b7280"}, {"date": "2025-11-27", "color": "#3b82f6"}, {"date": "2025-12-01", "color": "#ef4444"}, {"date": "2025-12-02", "color": "#6b7280"}, {"date": "2025-12-03", "color": "#6b7280"}, {"date": "2025-12-11", "color": "#6b7280"}, {"date": "2025-12-12", "color": "#6b7280"}, {"date": "2025-12-15", "color": "#6b7280"}, {"date": "2025-12-17", "color": "#6b7280"}, {"date": "2025-12-18", "color": "#22c55e"}, {"date": "2025-12-19", "color": "#6b7280"}, {"date": "2025-12-22", "color": "#6b7280"}, {"date": "2025-12-23", "color": "#6b7280"}, {"date": "2025-12-26", "color": "#6b7280"}, {"date": "2025-12-28", "color": "#6b7280"}, {"date": "2025-12-29", "color": "#6b7280"}, {"date": "2025-12-30", "color": "#22c55e"}]}, "2025-01-03": "EvoRev2", "2025-01-06": "EvoRev2", "2025-01-08": "netmeter", "2025-01-09": "EvoRev2", "2025-01-10": "EvoRev2", "2025-01-13": "EvoRev2", "2025-01-14": "EvoRev2", "2025-01-15": "EvoRev2", "2025-01-16": "EvoRev2", "2025-01-17": "EvoRev2", "2025-01-20": "EvoRev2", "2025-01-22": "EvoRev2", "2025-01-23": "EvoRev2", "2025-01-24": "EvoRev2", "2025-02-04": "io-ctd", "2025-02-05": "EvoRev2", "2025-02-06": "EvoRev2", "2025-02-07": "EvoRev2", "2025-02-10": "EvoRev2", "2025-02-11": "EvoRev2", "2025-02-12": "EvoRev2", "2025-02-13": "EvoRev2", "2025-02-18": "EvoRev2", "2025-02-20": "EvoRev2", "2025-02-21": "EvoRev2", "2025-02-24": "EvoRev2", "2025-02-25": "EvoRev2", "2025-02-27": "EvoRev2", "2025-02-28": "EvoRev2", "2025-03-04": "EvoRev2", "2025-03-05": "EvoRev2", "2025-03-06": "EvoRev2", "2025-03-07": "EvoRev2", "2025-03-10": "EvoRev2", "2025-03-11": "EvoRev2", "2025-03-12": "EvoRev2", "2025-03-13": "EvoRev2", "2025-03-14": "EvoRev2", "2025-03-18": "EvoRev2", "2025-03-20": "EvoRev2", "2025-03-21": "EvoRev2", "2025-03-24": "EvoRev2", "2025-03-25": "EvoRev2", "2025-03-27": "EvoRev2", "2025-03-28": "EvoRev2", "2025-03-30": "EvoRev2", "2025-03-31": "EvoRev2", "2025-04-02": "EvoRev2", "2025-04-03": "EvoRev2", "2025-04-04": "EvoRev2", "2025-04-07": "EvoRev2", "2025-04-08": "EvoRev2", "2025-04-09": "EvoRev2", "2025-04-10": "EvoRev2", "2025-04-11": "EvoRev2", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "EvoRev2", "2025-04-18": "EvoRev2", "2025-04-21": "EvoRev2", "2025-04-22": "EvoRev2", "2025-04-23": "EvoRev2", "2025-04-24": "EvoRev2", "2025-04-28": "EvoRev2", "2025-04-30": "EvoRev2", "2025-05-02": "EvoRev2", "2025-05-07": "EvoRev2", "2025-05-12": "EvoRev2", "2025-05-13": "EvoRev2", "2025-05-14": "EvoRev2", "2025-05-15": "EvoRev2", "2025-05-16": "EvoRev2", "2025-05-19": "EvoRev2", "2025-05-20": "EvoRev2", "2025-05-22": "EvoRev2", "2025-05-23": "EvoRev2", "2025-05-25": "EvoRev2", "2025-05-26": "EvoRev2", "2025-05-27": "EvoRev2", "2025-05-28": "EvoRev2", "2025-05-29": "EvoRev2", "2025-05-30": "EvoRev2", "2025-06-04": "EvoRev2", "2025-06-09": "EvoRev2", "2025-06-10": "EvoRev2", "2025-06-11": "EvoRev2", "2025-06-12": "EvoRev2", "2025-06-13": "EvoRev2", "2025-06-17": "EvoRev2", "2025-06-18": "EvoRev2", "2025-06-23": "EvoRev2", "2025-06-25": "EvoRev2", "2025-06-26": "EvoRev2", "2025-06-27": "EvoRev2", "2025-07-02": "EvoRev2", "2025-07-03": "EvoRev2", "2025-07-08": "EvoRev2", "2025-07-09": "EvoRev2", "2025-07-11": "netmeter-global", "2025-07-14": "super-agent-mvp", "2025-07-15": "EvoRev2", "2025-07-16": "EvoRev2", "2025-07-17": "EvoRev2", "2025-07-18": "Evo Esp32s3 Bt Firmware", "2025-07-20": "EvoRev2", "2025-07-21": "EvoRev2", "2025-07-22": "super-agent-mvp", "2025-07-23": "EvoRev2", "2025-07-24": "EvoRev2", "2025-07-29": "EvoRev2", "2025-07-30": "EvoRev2", "2025-07-31": "EvoRev2", "2025-08-01": "super-agent-mvp", "2025-08-04": "super-agent-mvp", "2025-08-05": "EvoRev2", "2025-08-07": "super-agent-mvp", "2025-08-08": "super-agent-mvp", "2025-08-12": "super-agent-mvp", "2025-08-13": "netmeter-global", "2025-08-14": "io-ctd", "2025-08-19": "super-agent-mvp", "2025-08-20": "EvoRev2", "2025-08-21": "EvoRev2", "2025-08-25": "super-agent-mvp", "2025-08-26": "super-agent-mvp", "2025-08-27": "super-agent-mvp", "2025-08-28": "EvoRev2", "2025-08-29": "super-agent-mvp", "2025-09-09": "super-agent-mvp", "2025-09-17": "netmeter-global", "2025-09-24": "super-agent-mvp", "2025-10-13": "EvoRev2", "2025-10-15": "EvoRev2", "2025-10-16": "EvoRev2", "2025-10-20": "EvoRev2", "2025-10-21": "super-agent-mvp", "2025-10-22": "EvoRev2", "2025-10-24": "super-agent-mvp", "2025-11-03": "super-agent-mvp", "2025-11-04": "super-agent-mvp", "2025-11-06": "super-agent-mvp", "2025-11-07": "super-agent-mvp", "2025-11-10": "super-agent-mvp", "2025-11-13": "super-agent-mvp", "2025-11-17": "EvoRev2", "2025-11-18": "EvoRev2", "2025-11-19": "EvoRev2", "2025-11-24": "super-agent-mvp", "2025-11-27": "EvoRev2", "2025-12-01": "topaz", "2025-12-02": "super-agent-mvp", "2025-12-03": "super-agent-mvp", "2025-12-11": "super-agent-mvp", "2025-12-12": "super-agent-mvp", "2025-12-15": "super-agent-mvp", "2025-12-17": "super-agent-mvp", "2025-12-18": "vos", "2025-12-19": "super-agent-mvp", "2025-12-22": "super-agent-mvp", "2025-12-23": "super-agent-mvp", "2025-12-26": "super-agent-mvp", "2025-12-28": "super-agent-mvp", "2025-12-29": "super-agent-mvp", "2025-12-30": "vos"}, "진환": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-07", "color": "#3b82f6"}, {"date": "2025-01-08", "color": "#3b82f6"}, {"date": "2025-01-09", "color": "#3b82f6"}, {"date": "2025-01-10", "color": "#3b82f6"}, {"date": "2025-01-13", "color": "#3b82f6"}, {"date": "2025-01-14", "color": "#ef4444"}, {"date": "2025-01-15", "color": "#ef4444"}, {"date": "2025-01-16", "color": "#ef4444"}, {"date": "2025-01-17", "color": "#3b82f6"}, {"date": "2025-01-20", "color": "#ef4444"}, {"date": "2025-01-21", "color": "#ef4444"}, {"date": "2025-01-22", "color": "#ef4444"}, {"date": "2025-01-23", "color": "#ef4444"}, {"date": "2025-01-24", "color": "#3b82f6"}, {"date": "2025-02-03", "color": "#3b82f6"}, {"date": "2025-02-04", "color": "#3b82f6"}, {"date": "2025-02-10", "color": "#ef4444"}, {"date": "2025-02-11", "color": "#ef4444"}, {"date": "2025-02-12", "color": "#ef4444"}, {"date": "2025-02-18", "color": "#3b82f6"}, {"date": "2025-02-19", "color": "#ef4444"}, {"date": "2025-02-21", "color": "#ef4444"}, {"date": "2025-02-24", "color": "#3b82f6"}, {"date": "2025-02-25", "color": "#3b82f6"}, {"date": "2025-02-26", "color": "#3b82f6"}, {"date": "2025-02-27", "color": "#3b82f6"}, {"date": "2025-03-04", "color": "#3b82f6"}, {"date": "2025-03-05", "color": "#ef4444"}, {"date": "2025-03-10", "color": "#3b82f6"}, {"date": "2025-03-11", "color": "#3b82f6"}, {"date": "2025-03-12", "color": "#3b82f6"}, {"date": "2025-03-13", "color": "#3b82f6"}, {"date": "2025-03-20", "color": "#3b82f6"}, {"date": "2025-03-21", "color": "#3b82f6"}, {"date": "2025-03-24", "color": "#3b82f6"}, {"date": "2025-03-25", "color": "#3b82f6"}, {"date": "2025-03-26", "color": "#3b82f6"}, {"date": "2025-03-27", "color": "#3b82f6"}, {"date": "2025-03-28", "color": "#3b82f6"}, {"date": "2025-03-31", "color": "#3b82f6"}, {"date": "2025-04-01", "color": "#3b82f6"}, {"date": "2025-04-02", "color": "#3b82f6"}, {"date": "2025-04-03", "color": "#3b82f6"}, {"date": "2025-04-04", "color": "#3b82f6"}, {"date": "2025-04-07", "color": "#3b82f6"}, {"date": "2025-04-08", "color": "#3b82f6"}, {"date": "2025-04-09", "color": "#3b82f6"}, {"date": "2025-04-10", "color": "#3b82f6"}, {"date": "2025-04-11", "color": "#3b82f6"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#3b82f6"}, {"date": "2025-04-18", "color": "#3b82f6"}, {"date": "2025-04-21", "color": "#3b82f6"}, {"date": "2025-04-22", "color": "#3b82f6"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-24", "color": "#3b82f6"}, {"date": "2025-04-25", "color": "#3b82f6"}, {"date": "2025-04-28", "color": "#3b82f6"}, {"date": "2025-04-29", "color": "#3b82f6"}, {"date": "2025-04-30", "color": "#3b82f6"}, {"date": "2025-05-02", "color": "#3b82f6"}, {"date": "2025-05-07", "color": "#3b82f6"}, {"date": "2025-05-08", "color": "#3b82f6"}, {"date": "2025-05-09", "color": "#3b82f6"}, {"date": "2025-05-14", "color": "#3b82f6"}, {"date": "2025-05-15", "color": "#3b82f6"}, {"date": "2025-05-16", "color": "#3b82f6"}, {"date": "2025-05-19", "color": "#3b82f6"}, {"date": "2025-05-20", "color": "#3b82f6"}, {"date": "2025-05-21", "color": "#3b82f6"}, {"date": "2025-05-22", "color": "#3b82f6"}, {"date": "2025-05-26", "color": "#3b82f6"}, {"date": "2025-05-27", "color": "#3b82f6"}, {"date": "2025-05-29", "color": "#3b82f6"}, {"date": "2025-06-02", "color": "#3b82f6"}, {"date": "2025-06-11", "color": "#3b82f6"}, {"date": "2025-06-12", "color": "#3b82f6"}, {"date": "2025-06-13", "color": "#3b82f6"}, {"date": "2025-06-16", "color": "#3b82f6"}, {"date": "2025-06-17", "color": "#3b82f6"}, {"date": "2025-06-18", "color": "#f59e0b"}, {"date": "2025-06-19", "color": "#3b82f6"}, {"date": "2025-06-20", "color": "#3b82f6"}, {"date": "2025-06-25", "color": "#3b82f6"}, {"date": "2025-06-26", "color": "#3b82f6"}, {"date": "2025-07-02", "color": "#3b82f6"}, {"date": "2025-07-03", "color": "#3b82f6"}, {"date": "2025-07-07", "color": "#3b82f6"}, {"date": "2025-07-08", "color": "#3b82f6"}, {"date": "2025-07-09", "color": "#3b82f6"}, {"date": "2025-07-10", "color": "#8b5cf6"}, {"date": "2025-07-11", "color": "#3b82f6"}, {"date": "2025-07-14", "color": "#3b82f6"}, {"date": "2025-07-15", "color": "#3b82f6"}, {"date": "2025-07-16", "color": "#3b82f6"}, {"date": "2025-07-17", "color": "#3b82f6"}, {"date": "2025-07-18", "color": "#3b82f6"}, {"date": "2025-07-21", "color": "#3b82f6"}, {"date": "2025-07-23", "color": "#3b82f6"}, {"date": "2025-07-24", "color": "#3b82f6"}, {"date": "2025-07-25", "color": "#3b82f6"}, {"date": "2025-07-29", "color": "#3b82f6"}, {"date": "2025-07-30", "color": "#3b82f6"}, {"date": "2025-07-31", "color": "#3b82f6"}, {"date": "2025-08-01", "color": "#3b82f6"}, {"date": "2025-08-04", "color": "#3b82f6"}, {"date": "2025-08-05", "color": "#3b82f6"}, {"date": "2025-08-06", "color": "#3b82f6"}, {"date": "2025-08-07", "color": "#3b82f6"}, {"date": "2025-08-20", "color": "#3b82f6"}, {"date": "2025-08-21", "color": "#3b82f6"}, {"date": "2025-08-26", "color": "#6b7280"}, {"date": "2025-09-01", "color": "#6b7280"}, {"date": "2025-09-05", "color": "#6b7280"}, {"date": "2025-09-18", "color": "#6b7280"}, {"date": "2025-09-19", "color": "#8b5cf6"}, {"date": "2025-10-01", "color": "#3b82f6"}, {"date": "2025-10-13", "color": "#3b82f6"}, {"date": "2025-10-14", "color": "#3b82f6"}, {"date": "2025-10-15", "color": "#3b82f6"}, {"date": "2025-10-16", "color": "#3b82f6"}, {"date": "2025-10-19", "color": "#3b82f6"}, {"date": "2025-10-20", "color": "#3b82f6"}, {"date": "2025-10-21", "color": "#3b82f6"}, {"date": "2025-10-22", "color": "#3b82f6"}, {"date": "2025-10-27", "color": "#ef4444"}, {"date": "2025-10-28", "color": "#ef4444"}, {"date": "2025-10-30", "color": "#ef4444"}, {"date": "2025-10-31", "color": "#ef4444"}, {"date": "2025-11-03", "color": "#ef4444"}, {"date": "2025-11-04", "color": "#ef4444"}, {"date": "2025-11-05", "color": "#ef4444"}, {"date": "2025-11-11", "color": "#ef4444"}, {"date": "2025-11-12", "color": "#3b82f6"}, {"date": "2025-11-13", "color": "#3b82f6"}, {"date": "2025-11-17", "color": "#3b82f6"}, {"date": "2025-11-18", "color": "#ef4444"}, {"date": "2025-11-19", "color": "#3b82f6"}, {"date": "2025-11-25", "color": "#ef4444"}, {"date": "2025-11-27", "color": "#3b82f6"}, {"date": "2025-12-01", "color": "#ef4444"}, {"date": "2025-12-02", "color": "#ef4444"}, {"date": "2025-12-04", "color": "#ef4444"}, {"date": "2025-12-09", "color": "#ef4444"}, {"date": "2025-12-12", "color": "#f59e0b"}, {"date": "2025-12-17", "color": "#ef4444"}, {"date": "2025-12-19", "color": "#22c55e"}, {"date": "2025-12-29", "color": "#22c55e"}, {"date": "2025-12-31", "color": "#22c55e"}]}, "2025-01-07": "EvoRev2", "2025-01-08": "EvoRev2", "2025-01-09": "EvoRev2", "2025-01-10": "EvoRev2", "2025-01-13": "EvoRev2", "2025-01-14": "topaz", "2025-01-15": "topaz", "2025-01-16": "topaz", "2025-01-17": "EvoRev2", "2025-01-20": "topaz", "2025-01-21": "topaz", "2025-01-22": "topaz", "2025-01-23": "topaz", "2025-01-24": "EvoRev2", "2025-02-03": "EvoRev2", "2025-02-04": "EvoRev2", "2025-02-10": "topaz", "2025-02-11": "topaz", "2025-02-12": "topaz", "2025-02-18": "EvoRev2", "2025-02-19": "topaz", "2025-02-21": "topaz", "2025-02-24": "EvoRev2", "2025-02-25": "EvoRev2", "2025-02-26": "EvoRev2", "2025-02-27": "EvoRev2", "2025-03-04": "EvoRev2", "2025-03-05": "topaz", "2025-03-10": "EvoRev2", "2025-03-11": "EvoRev2", "2025-03-12": "EvoRev2", "2025-03-13": "EvoRev2", "2025-03-20": "EvoRev2", "2025-03-21": "EvoRev2", "2025-03-24": "EvoRev2", "2025-03-25": "EvoRev2", "2025-03-26": "EvoRev2", "2025-03-27": "EvoRev2", "2025-03-28": "EvoRev2", "2025-03-31": "EvoRev2", "2025-04-01": "EvoRev2", "2025-04-02": "EvoRev2", "2025-04-03": "EvoRev2", "2025-04-04": "EvoRev2", "2025-04-07": "EvoRev2", "2025-04-08": "EvoRev2", "2025-04-09": "EvoRev2", "2025-04-10": "EvoRev2", "2025-04-11": "EvoRev2", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "EvoRev2", "2025-04-18": "EvoRev2", "2025-04-21": "EvoRev2", "2025-04-22": "EvoRev2", "2025-04-23": "EvoRev2", "2025-04-24": "EvoRev2", "2025-04-25": "EvoRev2", "2025-04-28": "EvoRev2", "2025-04-29": "EvoRev2", "2025-04-30": "EvoRev2", "2025-05-02": "EvoRev2", "2025-05-07": "EvoRev2", "2025-05-08": "EvoRev2", "2025-05-09": "EvoRev2", "2025-05-14": "EvoRev2", "2025-05-15": "EvoRev2", "2025-05-16": "EvoRev2", "2025-05-19": "EvoRev2", "2025-05-20": "EvoRev2", "2025-05-21": "EvoRev2", "2025-05-22": "EvoRev2", "2025-05-26": "EvoRev2", "2025-05-27": "EvoRev2", "2025-05-29": "EvoRev2", "2025-06-02": "EvoRev2", "2025-06-11": "EvoRev2", "2025-06-12": "EvoRev2", "2025-06-13": "EvoRev2", "2025-06-16": "EvoRev2", "2025-06-17": "EvoRev2", "2025-06-18": "ott", "2025-06-19": "EvoRev2", "2025-06-20": "EvoRev2", "2025-06-25": "EvoRev2", "2025-06-26": "EvoRev2", "2025-07-02": "EvoRev2", "2025-07-03": "EvoRev2", "2025-07-07": "EvoRev2", "2025-07-08": "EvoRev2", "2025-07-09": "EvoRev2", "2025-07-10": "netmeter", "2025-07-11": "EvoRev2", "2025-07-14": "EvoRev2", "2025-07-15": "EvoRev2", "2025-07-16": "EvoRev2", "2025-07-17": "EvoRev2", "2025-07-18": "EvoRev2", "2025-07-21": "EvoRev2", "2025-07-23": "EvoRev2", "2025-07-24": "EvoRev2", "2025-07-25": "EvoRev2", "2025-07-29": "EvoRev2", "2025-07-30": "EvoRev2", "2025-07-31": "EvoRev2", "2025-08-01": "EvoRev2", "2025-08-04": "EvoRev2", "2025-08-05": "EvoRev2", "2025-08-06": "EvoRev2", "2025-08-07": "EvoRev2", "2025-08-20": "EvoRev2", "2025-08-21": "EvoRev2", "2025-08-26": "super-agent-mvp", "2025-09-01": "io-ctd", "2025-09-05": "io-ctd", "2025-09-18": "netmeter-global", "2025-09-19": "netmeter", "2025-10-01": "EvoRev2", "2025-10-13": "EvoRev2", "2025-10-14": "EvoRev2", "2025-10-15": "EvoRev2", "2025-10-16": "EvoRev2", "2025-10-19": "EvoRev2", "2025-10-20": "EvoRev2", "2025-10-21": "EvoRev2", "2025-10-22": "EvoRev2", "2025-10-27": "topaz", "2025-10-28": "topaz", "2025-10-30": "topaz", "2025-10-31": "topaz", "2025-11-03": "topaz", "2025-11-04": "topaz", "2025-11-05": "topaz", "2025-11-11": "topaz", "2025-11-12": "EvoRev2", "2025-11-13": "EvoRev2", "2025-11-17": "EvoRev2", "2025-11-18": "topaz", "2025-11-19": "EvoRev2", "2025-11-25": "topaz", "2025-11-27": "EvoRev2", "2025-12-01": "topaz", "2025-12-02": "topaz", "2025-12-04": "topaz", "2025-12-09": "topaz", "2025-12-12": "ott", "2025-12-17": "topaz", "2025-12-19": "vos", "2025-12-29": "vos", "2025-12-31": "vos"}, "재일": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-02", "color": "#3b82f6"}, {"date": "2025-01-03", "color": "#3b82f6"}, {"date": "2025-01-07", "color": "#3b82f6"}, {"date": "2025-01-08", "color": "#3b82f6"}, {"date": "2025-01-09", "color": "#3b82f6"}, {"date": "2025-01-13", "color": "#3b82f6"}, {"date": "2025-01-14", "color": "#3b82f6"}, {"date": "2025-01-15", "color": "#3b82f6"}, {"date": "2025-01-17", "color": "#3b82f6"}, {"date": "2025-01-20", "color": "#6b7280"}, {"date": "2025-01-21", "color": "#6b7280"}, {"date": "2025-01-22", "color": "#3b82f6"}, {"date": "2025-01-23", "color": "#6b7280"}, {"date": "2025-01-24", "color": "#3b82f6"}, {"date": "2025-02-05", "color": "#3b82f6"}, {"date": "2025-02-06", "color": "#3b82f6"}, {"date": "2025-02-07", "color": "#3b82f6"}, {"date": "2025-02-10", "color": "#3b82f6"}, {"date": "2025-02-11", "color": "#3b82f6"}, {"date": "2025-02-12", "color": "#3b82f6"}, {"date": "2025-02-13", "color": "#3b82f6"}, {"date": "2025-02-16", "color": "#3b82f6"}, {"date": "2025-02-17", "color": "#3b82f6"}, {"date": "2025-02-18", "color": "#3b82f6"}, {"date": "2025-02-20", "color": "#3b82f6"}, {"date": "2025-02-25", "color": "#f59e0b"}, {"date": "2025-02-28", "color": "#3b82f6"}, {"date": "2025-03-05", "color": "#3b82f6"}, {"date": "2025-03-07", "color": "#3b82f6"}, {"date": "2025-03-10", "color": "#3b82f6"}, {"date": "2025-03-11", "color": "#3b82f6"}, {"date": "2025-03-12", "color": "#3b82f6"}, {"date": "2025-03-13", "color": "#3b82f6"}, {"date": "2025-03-14", "color": "#3b82f6"}, {"date": "2025-03-17", "color": "#3b82f6"}, {"date": "2025-03-18", "color": "#3b82f6"}, {"date": "2025-03-20", "color": "#3b82f6"}, {"date": "2025-03-21", "color": "#3b82f6"}, {"date": "2025-03-22", "color": "#3b82f6"}, {"date": "2025-03-24", "color": "#3b82f6"}, {"date": "2025-03-25", "color": "#3b82f6"}, {"date": "2025-03-26", "color": "#3b82f6"}, {"date": "2025-03-27", "color": "#3b82f6"}, {"date": "2025-03-28", "color": "#3b82f6"}, {"date": "2025-03-30", "color": "#3b82f6"}, {"date": "2025-03-31", "color": "#3b82f6"}, {"date": "2025-04-01", "color": "#3b82f6"}, {"date": "2025-04-02", "color": "#3b82f6"}, {"date": "2025-04-03", "color": "#3b82f6"}, {"date": "2025-04-04", "color": "#3b82f6"}, {"date": "2025-04-07", "color": "#3b82f6"}, {"date": "2025-04-08", "color": "#3b82f6"}, {"date": "2025-04-09", "color": "#3b82f6"}, {"date": "2025-04-10", "color": "#3b82f6"}, {"date": "2025-04-11", "color": "#3b82f6"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#3b82f6"}, {"date": "2025-04-19", "color": "#3b82f6"}, {"date": "2025-04-21", "color": "#3b82f6"}, {"date": "2025-04-22", "color": "#3b82f6"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-28", "color": "#3b82f6"}, {"date": "2025-04-29", "color": "#3b82f6"}, {"date": "2025-04-30", "color": "#3b82f6"}, {"date": "2025-05-15", "color": "#6b7280"}, {"date": "2025-05-19", "color": "#3b82f6"}, {"date": "2025-05-21", "color": "#3b82f6"}, {"date": "2025-05-23", "color": "#6b7280"}, {"date": "2025-05-27", "color": "#3b82f6"}, {"date": "2025-05-28", "color": "#3b82f6"}, {"date": "2025-05-29", "color": "#3b82f6"}, {"date": "2025-05-30", "color": "#3b82f6"}, {"date": "2025-06-04", "color": "#3b82f6"}, {"date": "2025-06-11", "color": "#3b82f6"}, {"date": "2025-06-12", "color": "#6b7280"}, {"date": "2025-06-13", "color": "#3b82f6"}, {"date": "2025-06-17", "color": "#3b82f6"}, {"date": "2025-06-18", "color": "#3b82f6"}, {"date": "2025-06-21", "color": "#3b82f6"}, {"date": "2025-06-23", "color": "#3b82f6"}, {"date": "2025-06-24", "color": "#3b82f6"}, {"date": "2025-06-26", "color": "#3b82f6"}, {"date": "2025-06-27", "color": "#3b82f6"}, {"date": "2025-06-28", "color": "#3b82f6"}, {"date": "2025-06-30", "color": "#3b82f6"}, {"date": "2025-07-04", "color": "#3b82f6"}, {"date": "2025-07-09", "color": "#3b82f6"}, {"date": "2025-07-10", "color": "#6b7280"}, {"date": "2025-07-11", "color": "#6b7280"}, {"date": "2025-07-14", "color": "#3b82f6"}, {"date": "2025-07-15", "color": "#6b7280"}, {"date": "2025-07-16", "color": "#6b7280"}, {"date": "2025-07-17", "color": "#6b7280"}, {"date": "2025-07-18", "color": "#6b7280"}, {"date": "2025-07-21", "color": "#6b7280"}, {"date": "2025-07-22", "color": "#6b7280"}, {"date": "2025-07-23", "color": "#6b7280"}, {"date": "2025-07-24", "color": "#6b7280"}, {"date": "2025-07-25", "color": "#6b7280"}, {"date": "2025-07-28", "color": "#6b7280"}, {"date": "2025-07-29", "color": "#6b7280"}, {"date": "2025-07-30", "color": "#6b7280"}, {"date": "2025-07-31", "color": "#6b7280"}, {"date": "2025-08-01", "color": "#6b7280"}, {"date": "2025-08-04", "color": "#6b7280"}, {"date": "2025-08-05", "color": "#3b82f6"}, {"date": "2025-08-07", "color": "#6b7280"}, {"date": "2025-08-08", "color": "#6b7280"}, {"date": "2025-08-11", "color": "#3b82f6"}, {"date": "2025-08-12", "color": "#6b7280"}, {"date": "2025-08-13", "color": "#6b7280"}, {"date": "2025-08-14", "color": "#6b7280"}, {"date": "2025-08-15", "color": "#6b7280"}, {"date": "2025-08-16", "color": "#6b7280"}, {"date": "2025-08-17", "color": "#6b7280"}, {"date": "2025-08-18", "color": "#6b7280"}, {"date": "2025-08-19", "color": "#6b7280"}, {"date": "2025-08-25", "color": "#6b7280"}, {"date": "2025-08-26", "color": "#6b7280"}, {"date": "2025-08-27", "color": "#6b7280"}, {"date": "2025-08-28", "color": "#6b7280"}, {"date": "2025-08-29", "color": "#6b7280"}, {"date": "2025-09-09", "color": "#6b7280"}, {"date": "2025-09-10", "color": "#6b7280"}, {"date": "2025-09-11", "color": "#6b7280"}, {"date": "2025-09-16", "color": "#6b7280"}, {"date": "2025-09-22", "color": "#f59e0b"}, {"date": "2025-09-23", "color": "#6b7280"}, {"date": "2025-09-24", "color": "#6b7280"}, {"date": "2025-09-25", "color": "#f59e0b"}, {"date": "2025-10-13", "color": "#f59e0b"}, {"date": "2025-10-15", "color": "#f59e0b"}, {"date": "2025-10-16", "color": "#6b7280"}, {"date": "2025-10-20", "color": "#6b7280"}, {"date": "2025-10-21", "color": "#f59e0b"}, {"date": "2025-10-23", "color": "#6b7280"}, {"date": "2025-10-24", "color": "#6b7280"}, {"date": "2025-11-03", "color": "#6b7280"}, {"date": "2025-11-04", "color": "#6b7280"}, {"date": "2025-11-05", "color": "#6b7280"}, {"date": "2025-11-07", "color": "#6b7280"}, {"date": "2025-11-09", "color": "#6b7280"}, {"date": "2025-11-13", "color": "#6b7280"}, {"date": "2025-11-14", "color": "#f59e0b"}, {"date": "2025-11-17", "color": "#6b7280"}, {"date": "2025-11-18", "color": "#3b82f6"}, {"date": "2025-11-19", "color": "#3b82f6"}, {"date": "2025-11-20", "color": "#6b7280"}, {"date": "2025-11-21", "color": "#6b7280"}, {"date": "2025-11-24", "color": "#6b7280"}, {"date": "2025-11-25", "color": "#6b7280"}, {"date": "2025-11-26", "color": "#6b7280"}, {"date": "2025-11-27", "color": "#3b82f6"}, {"date": "2025-12-02", "color": "#6b7280"}, {"date": "2025-12-10", "color": "#6b7280"}, {"date": "2025-12-12", "color": "#22c55e"}, {"date": "2025-12-15", "color": "#6b7280"}, {"date": "2025-12-17", "color": "#6b7280"}, {"date": "2025-12-18", "color": "#6b7280"}, {"date": "2025-12-19", "color": "#6b7280"}, {"date": "2025-12-22", "color": "#6b7280"}, {"date": "2025-12-23", "color": "#6b7280"}, {"date": "2025-12-26", "color": "#6b7280"}, {"date": "2025-12-27", "color": "#6b7280"}, {"date": "2025-12-29", "color": "#6b7280"}, {"date": "2025-12-30", "color": "#6b7280"}, {"date": "2025-12-31", "color": "#6b7280"}]}, "2025-01-02": "EvoRev2", "2025-01-03": "EvoRev2", "2025-01-07": "EvoRev2", "2025-01-08": "EvoRev2", "2025-01-09": "EvoRev2", "2025-01-13": "EvoRev2", "2025-01-14": "EvoRev2", "2025-01-15": "EvoRev2", "2025-01-17": "EvoRev2", "2025-01-20": "io-ctd", "2025-01-21": "io-ctd", "2025-01-22": "EvoRev2", "2025-01-23": "io-ctd", "2025-01-24": "EvoRev2", "2025-02-05": "EvoRev2", "2025-02-06": "EvoRev2", "2025-02-07": "EvoRev2", "2025-02-10": "EvoRev2", "2025-02-11": "EvoRev2", "2025-02-12": "EvoRev2", "2025-02-13": "EvoRev2", "2025-02-16": "EvoRev2", "2025-02-17": "EvoRev2", "2025-02-18": "EvoRev2", "2025-02-20": "EvoRev2", "2025-02-25": "ott", "2025-02-28": "EvoRev2", "2025-03-05": "EvoRev2", "2025-03-07": "EvoRev2", "2025-03-10": "EvoRev2", "2025-03-11": "EvoRev2", "2025-03-12": "EvoRev2", "2025-03-13": "EvoRev2", "2025-03-14": "EvoRev2", "2025-03-17": "EvoRev2", "2025-03-18": "EvoRev2", "2025-03-20": "EvoRev2", "2025-03-21": "EvoRev2", "2025-03-22": "EvoRev2", "2025-03-24": "EvoRev2", "2025-03-25": "EvoRev2", "2025-03-26": "EvoRev2", "2025-03-27": "EvoRev2", "2025-03-28": "EvoRev2", "2025-03-30": "EvoRev2", "2025-03-31": "EvoRev2", "2025-04-01": "EvoRev2", "2025-04-02": "EvoRev2", "2025-04-03": "EvoRev2", "2025-04-04": "EvoRev2", "2025-04-07": "EvoRev2", "2025-04-08": "EvoRev2", "2025-04-09": "EvoRev2", "2025-04-10": "EvoRev2", "2025-04-11": "EvoRev2", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "EvoRev2", "2025-04-19": "EvoRev2", "2025-04-21": "EvoRev2", "2025-04-22": "EvoRev2", "2025-04-23": "EvoRev2", "2025-04-28": "EvoRev2", "2025-04-29": "EvoRev2", "2025-04-30": "EvoRev2", "2025-05-15": "evo-block-list", "2025-05-19": "EvoRev2", "2025-05-21": "EvoRev2", "2025-05-23": "evo-block-list", "2025-05-27": "EvoRev2", "2025-05-28": "EvoRev2", "2025-05-29": "EvoRev2", "2025-05-30": "EvoRev2", "2025-06-04": "EvoRev2", "2025-06-11": "EvoRev2", "2025-06-12": "evo-block-list", "2025-06-13": "EvoRev2", "2025-06-17": "EvoRev2", "2025-06-18": "EvoRev2", "2025-06-21": "EvoRev2", "2025-06-23": "EvoRev2", "2025-06-24": "EvoRev2", "2025-06-26": "EvoRev2", "2025-06-27": "EvoRev2", "2025-06-28": "EvoRev2", "2025-06-30": "EvoRev2", "2025-07-04": "EvoRev2", "2025-07-09": "EvoRev2", "2025-07-10": "netmeter-global", "2025-07-11": "netmeter-global", "2025-07-14": "EvoRev2", "2025-07-15": "netmeter-global", "2025-07-16": "super-agent-mvp", "2025-07-17": "super-agent-mvp", "2025-07-18": "super-agent-mvp", "2025-07-21": "super-agent-mvp", "2025-07-22": "super-agent-mvp", "2025-07-23": "super-agent-mvp", "2025-07-24": "super-agent-mvp", "2025-07-25": "super-agent-mvp", "2025-07-28": "super-agent-mvp", "2025-07-29": "super-agent-mvp", "2025-07-30": "super-agent-mvp", "2025-07-31": "super-agent-mvp", "2025-08-01": "super-agent-mvp", "2025-08-04": "super-agent-mvp", "2025-08-05": "EvoRev2", "2025-08-07": "netmeter-global", "2025-08-08": "netmeter-global", "2025-08-11": "EvoRev2", "2025-08-12": "super-agent-mvp", "2025-08-13": "super-agent-mvp", "2025-08-14": "super-agent-mvp", "2025-08-15": "super-agent-mvp", "2025-08-16": "super-agent-mvp", "2025-08-17": "super-agent-mvp", "2025-08-18": "super-agent-mvp", "2025-08-19": "super-agent-mvp", "2025-08-25": "netmeter-global", "2025-08-26": "super-agent-mvp", "2025-08-27": "super-agent-mvp", "2025-08-28": "super-agent-mvp", "2025-08-29": "super-agent-mvp", "2025-09-09": "super-agent-mvp", "2025-09-10": "super-agent-mvp", "2025-09-11": "super-agent-mvp", "2025-09-16": "super-agent-mvp", "2025-09-22": "ott", "2025-09-23": "super-agent-mvp", "2025-09-24": "super-agent-mvp", "2025-09-25": "ott", "2025-10-13": "ott", "2025-10-15": "ott", "2025-10-16": "super-agent-mvp", "2025-10-20": "super-agent-mvp", "2025-10-21": "ott", "2025-10-23": "super-agent-mvp", "2025-10-24": "super-agent-mvp", "2025-11-03": "super-agent-mvp", "2025-11-04": "super-agent-mvp", "2025-11-05": "super-agent-mvp", "2025-11-07": "super-agent-mvp", "2025-11-09": "super-agent-mvp", "2025-11-13": "super-agent-mvp", "2025-11-14": "ott", "2025-11-17": "super-agent-mvp", "2025-11-18": "EvoRev2", "2025-11-19": "EvoRev2", "2025-11-20": "super-agent-mvp", "2025-11-21": "super-agent-mvp", "2025-11-24": "super-agent-mvp", "2025-11-25": "super-agent-mvp", "2025-11-26": "super-agent-mvp", "2025-11-27": "EvoRev2", "2025-12-02": "super-agent-mvp", "2025-12-10": "super-agent-mvp", "2025-12-12": "vos", "2025-12-15": "super-agent-mvp", "2025-12-17": "super-agent-mvp", "2025-12-18": "super-agent-mvp", "2025-12-19": "super-agent-mvp", "2025-12-22": "super-agent-mvp", "2025-12-23": "super-agent-mvp", "2025-12-26": "super-agent-mvp", "2025-12-27": "super-agent-mvp", "2025-12-29": "super-agent-mvp", "2025-12-30": "super-agent-mvp", "2025-12-31": "super-agent-mvp"}, "재현": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-09-25", "color": "#6b7280"}, {"date": "2025-09-26", "color": "#6b7280"}, {"date": "2025-09-29", "color": "#6b7280"}, {"date": "2025-10-16", "color": "#6b7280"}, {"date": "2025-10-17", "color": "#6b7280"}, {"date": "2025-10-20", "color": "#6b7280"}, {"date": "2025-10-23", "color": "#6b7280"}, {"date": "2025-10-24", "color": "#6b7280"}, {"date": "2025-10-27", "color": "#6b7280"}, {"date": "2025-10-28", "color": "#6b7280"}, {"date": "2025-10-29", "color": "#6b7280"}, {"date": "2025-10-31", "color": "#6b7280"}]}, "2025-09-25": "NetAnalyzerHOME", "2025-09-26": "NetAnalyzerHOME", "2025-09-29": "NetAnalyzerHOME", "2025-10-16": "NetAnalyzerHOME", "2025-10-17": "NetAnalyzerHOME", "2025-10-20": "NetAnalyzerHOME", "2025-10-23": "NetAnalyzerHOME", "2025-10-24": "NetAnalyzerHOME", "2025-10-27": "NetAnalyzerHOME", "2025-10-28": "NetAnalyzerHOME", "2025-10-29": "NetAnalyzerHOME", "2025-10-31": "NetAnalyzerHOME"}, "영수": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-01-07", "color": "#6b7280"}, {"date": "2025-01-08", "color": "#6b7280"}, {"date": "2025-01-10", "color": "#6b7280"}, {"date": "2025-01-13", "color": "#6b7280"}, {"date": "2025-01-14", "color": "#6b7280"}, {"date": "2025-01-15", "color": "#6b7280"}, {"date": "2025-01-16", "color": "#6b7280"}, {"date": "2025-01-17", "color": "#6b7280"}, {"date": "2025-01-20", "color": "#6b7280"}, {"date": "2025-01-21", "color": "#6b7280"}, {"date": "2025-01-22", "color": "#6b7280"}, {"date": "2025-01-23", "color": "#6b7280"}, {"date": "2025-01-24", "color": "#6b7280"}, {"date": "2025-02-03", "color": "#6b7280"}, {"date": "2025-02-04", "color": "#6b7280"}, {"date": "2025-02-05", "color": "#6b7280"}, {"date": "2025-02-06", "color": "#6b7280"}, {"date": "2025-02-10", "color": "#6b7280"}, {"date": "2025-02-11", "color": "#6b7280"}, {"date": "2025-02-12", "color": "#6b7280"}, {"date": "2025-02-14", "color": "#6b7280"}, {"date": "2025-02-18", "color": "#6b7280"}, {"date": "2025-02-19", "color": "#6b7280"}, {"date": "2025-02-21", "color": "#6b7280"}, {"date": "2025-02-24", "color": "#ef4444"}, {"date": "2025-02-25", "color": "#6b7280"}, {"date": "2025-02-26", "color": "#6b7280"}, {"date": "2025-02-27", "color": "#6b7280"}, {"date": "2025-02-28", "color": "#3b82f6"}, {"date": "2025-03-04", "color": "#6b7280"}, {"date": "2025-03-05", "color": "#6b7280"}, {"date": "2025-03-07", "color": "#6b7280"}, {"date": "2025-03-10", "color": "#6b7280"}, {"date": "2025-03-11", "color": "#6b7280"}, {"date": "2025-03-14", "color": "#6b7280"}, {"date": "2025-03-17", "color": "#3b82f6"}, {"date": "2025-03-19", "color": "#6b7280"}, {"date": "2025-03-24", "color": "#6b7280"}, {"date": "2025-03-25", "color": "#6b7280"}, {"date": "2025-03-26", "color": "#6b7280"}, {"date": "2025-03-27", "color": "#6b7280"}, {"date": "2025-03-28", "color": "#6b7280"}, {"date": "2025-03-31", "color": "#6b7280"}, {"date": "2025-04-01", "color": "#6b7280"}, {"date": "2025-04-02", "color": "#6b7280"}, {"date": "2025-04-03", "color": "#6b7280"}, {"date": "2025-04-04", "color": "#6b7280"}, {"date": "2025-04-07", "color": "#6b7280"}, {"date": "2025-04-08", "color": "#6b7280"}, {"date": "2025-04-09", "color": "#6b7280"}, {"date": "2025-04-11", "color": "#6b7280"}, {"date": "2025-04-14", "color": "#3b82f6"}, {"date": "2025-04-15", "color": "#3b82f6"}, {"date": "2025-04-16", "color": "#3b82f6"}, {"date": "2025-04-17", "color": "#6b7280"}, {"date": "2025-04-21", "color": "#6b7280"}, {"date": "2025-04-22", "color": "#6b7280"}, {"date": "2025-04-23", "color": "#3b82f6"}, {"date": "2025-04-24", "color": "#6b7280"}, {"date": "2025-04-25", "color": "#6b7280"}, {"date": "2025-04-26", "color": "#6b7280"}, {"date": "2025-04-29", "color": "#6b7280"}, {"date": "2025-04-30", "color": "#6b7280"}, {"date": "2025-05-07", "color": "#3b82f6"}, {"date": "2025-05-08", "color": "#06b6d4"}, {"date": "2025-05-09", "color": "#3b82f6"}, {"date": "2025-05-10", "color": "#3b82f6"}, {"date": "2025-05-12", "color": "#6b7280"}, {"date": "2025-05-13", "color": "#6b7280"}, {"date": "2025-05-15", "color": "#6b7280"}, {"date": "2025-05-17", "color": "#6b7280"}, {"date": "2025-05-18", "color": "#6b7280"}, {"date": "2025-05-20", "color": "#06b6d4"}, {"date": "2025-05-21", "color": "#6b7280"}, {"date": "2025-05-23", "color": "#6b7280"}, {"date": "2025-05-25", "color": "#6b7280"}, {"date": "2025-05-26", "color": "#6b7280"}, {"date": "2025-05-27", "color": "#6b7280"}, {"date": "2025-05-28", "color": "#6b7280"}, {"date": "2025-05-29", "color": "#6b7280"}, {"date": "2025-05-30", "color": "#6b7280"}, {"date": "2025-05-31", "color": "#6b7280"}, {"date": "2025-06-01", "color": "#6b7280"}, {"date": "2025-06-02", "color": "#6b7280"}, {"date": "2025-06-03", "color": "#6b7280"}, {"date": "2025-06-04", "color": "#6b7280"}, {"date": "2025-06-05", "color": "#6b7280"}, {"date": "2025-06-09", "color": "#6b7280"}, {"date": "2025-06-10", "color": "#6b7280"}, {"date": "2025-06-11", "color": "#6b7280"}, {"date": "2025-06-12", "color": "#6b7280"}, {"date": "2025-06-13", "color": "#6b7280"}, {"date": "2025-06-16", "color": "#6b7280"}, {"date": "2025-06-17", "color": "#6b7280"}, {"date": "2025-06-20", "color": "#6b7280"}, {"date": "2025-06-22", "color": "#6b7280"}, {"date": "2025-06-23", "color": "#6b7280"}, {"date": "2025-06-24", "color": "#6b7280"}, {"date": "2025-06-26", "color": "#6b7280"}, {"date": "2025-06-27", "color": "#6b7280"}, {"date": "2025-06-30", "color": "#6b7280"}, {"date": "2025-07-02", "color": "#6b7280"}, {"date": "2025-07-03", "color": "#6b7280"}, {"date": "2025-07-04", "color": "#6b7280"}, {"date": "2025-07-07", "color": "#06b6d4"}, {"date": "2025-07-08", "color": "#06b6d4"}, {"date": "2025-07-15", "color": "#06b6d4"}, {"date": "2025-07-21", "color": "#06b6d4"}, {"date": "2025-07-24", "color": "#06b6d4"}, {"date": "2025-07-25", "color": "#06b6d4"}, {"date": "2025-08-08", "color": "#06b6d4"}, {"date": "2025-08-13", "color": "#06b6d4"}, {"date": "2025-08-14", "color": "#6b7280"}, {"date": "2025-08-20", "color": "#06b6d4"}, {"date": "2025-08-27", "color": "#6b7280"}, {"date": "2025-08-28", "color": "#06b6d4"}, {"date": "2025-08-29", "color": "#6b7280"}, {"date": "2025-09-01", "color": "#06b6d4"}, {"date": "2025-09-04", "color": "#6b7280"}, {"date": "2025-09-05", "color": "#6b7280"}, {"date": "2025-09-17", "color": "#6b7280"}, {"date": "2025-09-19", "color": "#6b7280"}, {"date": "2025-09-23", "color": "#6b7280"}, {"date": "2025-09-25", "color": "#6b7280"}, {"date": "2025-09-29", "color": "#6b7280"}, {"date": "2025-09-30", "color": "#06b6d4"}, {"date": "2025-10-27", "color": "#6b7280"}, {"date": "2025-10-29", "color": "#6b7280"}, {"date": "2025-10-30", "color": "#6b7280"}, {"date": "2025-11-04", "color": "#6b7280"}, {"date": "2025-11-06", "color": "#6b7280"}, {"date": "2025-11-10", "color": "#6b7280"}, {"date": "2025-11-14", "color": "#6b7280"}, {"date": "2025-11-17", "color": "#6b7280"}, {"date": "2025-11-18", "color": "#6b7280"}, {"date": "2025-11-19", "color": "#6b7280"}, {"date": "2025-11-20", "color": "#6b7280"}, {"date": "2025-11-21", "color": "#6b7280"}, {"date": "2025-11-24", "color": "#6b7280"}, {"date": "2025-11-25", "color": "#6b7280"}, {"date": "2025-11-26", "color": "#6b7280"}, {"date": "2025-11-27", "color": "#6b7280"}, {"date": "2025-11-28", "color": "#6b7280"}, {"date": "2025-12-01", "color": "#6b7280"}, {"date": "2025-12-02", "color": "#6b7280"}, {"date": "2025-12-03", "color": "#6b7280"}, {"date": "2025-12-04", "color": "#6b7280"}, {"date": "2025-12-08", "color": "#6b7280"}, {"date": "2025-12-09", "color": "#6b7280"}, {"date": "2025-12-10", "color": "#6b7280"}, {"date": "2025-12-11", "color": "#6b7280"}, {"date": "2025-12-12", "color": "#6b7280"}, {"date": "2025-12-16", "color": "#6b7280"}, {"date": "2025-12-17", "color": "#6b7280"}, {"date": "2025-12-18", "color": "#6b7280"}, {"date": "2025-12-19", "color": "#6b7280"}, {"date": "2025-12-22", "color": "#6b7280"}, {"date": "2025-12-23", "color": "#6b7280"}, {"date": "2025-12-24", "color": "#6b7280"}, {"date": "2025-12-29", "color": "#6b7280"}, {"date": "2025-12-31", "color": "#6b7280"}]}, "2025-01-07": "nextlab-ml-assets", "2025-01-08": "llama-index-rag-system", "2025-01-10": "llama-index-rag-system", "2025-01-13": "llama-index-rag-system", "2025-01-14": "llama-index-rag-system", "2025-01-15": "llama-index-rag-system", "2025-01-16": "llama-index-rag-system", "2025-01-17": "llama-index-rag-system", "2025-01-20": "llama-index-rag-system", "2025-01-21": "llama-index-rag-system", "2025-01-22": "llama-index-rag-system", "2025-01-23": "llama-index-rag-system", "2025-01-24": "llama-index-rag-system", "2025-02-03": "llama-index-rag-system", "2025-02-04": "llama-index-rag-system", "2025-02-05": "llama-index-rag-system", "2025-02-06": "llama-index-rag-system", "2025-02-10": "llama-index-rag-system", "2025-02-11": "llama-index-rag-system", "2025-02-12": "llama-index-rag-system", "2025-02-14": "Esp32s3 Bt Firmware", "2025-02-18": "llama-index-rag-system", "2025-02-19": "llama-index-rag-system", "2025-02-21": "Esp32s3 Bt Firmware", "2025-02-24": "topaz", "2025-02-25": "llama-index-rag-system", "2025-02-26": "llama-index-rag-system", "2025-02-27": "llama-index-rag-system", "2025-02-28": "EvoRev2", "2025-03-04": "llama-index-rag-system", "2025-03-05": "llama-index-rag-system", "2025-03-07": "llama-index-rag-system", "2025-03-10": "llama-index-rag-system", "2025-03-11": "llama-index-rag-system", "2025-03-14": "ctd-firmware-and-algorithm", "2025-03-17": "EvoRev2", "2025-03-19": "llama-index-rag-system", "2025-03-24": "llama-index-rag-system", "2025-03-25": "llama-index-rag-system", "2025-03-26": "llama-index-rag-system", "2025-03-27": "llama-index-rag-system", "2025-03-28": "llama-index-rag-system", "2025-03-31": "llama-index-rag-system", "2025-04-01": "nextlab-ml-assets", "2025-04-02": "nextlab-ocr-temp-v2", "2025-04-03": "llama-index-rag-system", "2025-04-04": "nextlab-ml-assets", "2025-04-07": "llama-index-rag-system", "2025-04-08": "llm-rag-poc", "2025-04-09": "nextlab-ml-assets", "2025-04-11": "nextlab-ml-assets", "2025-04-14": "EvoRev2", "2025-04-15": "EvoRev2", "2025-04-16": "EvoRev2", "2025-04-17": "nextlab-ml-assets", "2025-04-21": "VisionLLM-based-testcase-automation", "2025-04-22": "VisionLLM-based-testcase-automation", "2025-04-23": "EvoRev2", "2025-04-24": "VisionLLM-based-testcase-automation", "2025-04-25": "VisionLLM-based-testcase-automation", "2025-04-26": "VisionLLM-based-testcase-automation", "2025-04-29": "VisionLLM-based-testcase-automation", "2025-04-30": "nextlab-ml-assets", "2025-05-07": "EvoRev2", "2025-05-08": "xray", "2025-05-09": "EvoRev2", "2025-05-10": "EvoRev2", "2025-05-12": "nextlab-ml-assets", "2025-05-13": "twamp-poc", "2025-05-15": "nextlab-ml-assets", "2025-05-17": "twamp-poc", "2025-05-18": "twamp-poc", "2025-05-20": "xray", "2025-05-21": "twamp-poc", "2025-05-23": "twamp-poc", "2025-05-25": "twamp-poc", "2025-05-26": "nextlab-ml-assets", "2025-05-27": "twamp-poc", "2025-05-28": "twamp-poc", "2025-05-29": "twamp-poc", "2025-05-30": "twamp-poc", "2025-05-31": "twamp-poc", "2025-06-01": "twamp-poc", "2025-06-02": "twamp-poc", "2025-06-03": "twamp-poc", "2025-06-04": "twamp-poc", "2025-06-05": "twamp-poc", "2025-06-09": "twamp-poc", "2025-06-10": "twamp-poc", "2025-06-11": "twamp-poc", "2025-06-12": "twamp-poc", "2025-06-13": "twamp-poc", "2025-06-16": "twamp-poc", "2025-06-17": "twamp-poc", "2025-06-20": "twamp-poc", "2025-06-22": "twamp-poc", "2025-06-23": "twamp-poc", "2025-06-24": "twamp-poc", "2025-06-26": "twamp-poc", "2025-06-27": "twamp-poc", "2025-06-30": "twamp-poc", "2025-07-02": "twamp-poc", "2025-07-03": "twamp-poc", "2025-07-04": "nextlab-ml-assets", "2025-07-07": "xray", "2025-07-08": "xray", "2025-07-15": "xray", "2025-07-21": "xray", "2025-07-24": "xray", "2025-07-25": "xray", "2025-08-08": "xray", "2025-08-13": "xray", "2025-08-14": "llama-index-rag-system", "2025-08-20": "xray", "2025-08-27": "llama-index-rag-system", "2025-08-28": "xray", "2025-08-29": "llama-index-rag-system", "2025-09-01": "xray", "2025-09-04": "Evo Esp32s3 Bt Firmware", "2025-09-05": "llama-index-rag-system", "2025-09-17": "nextlab-ml-assets", "2025-09-19": "llama-index-rag-system", "2025-09-23": "llama-index-rag-system", "2025-09-25": "nextlab-ml-assets", "2025-09-29": "llama-index-rag-system", "2025-09-30": "xray", "2025-10-27": "llama-index-rag-system", "2025-10-29": "llama-index-rag-system", "2025-10-30": "llama-index-rag-system", "2025-11-04": "skb-llm-chatbot-prd-temp", "2025-11-06": "skb-llm-chatbot-prd-temp", "2025-11-10": "skb-llm-chatbot-prd-temp", "2025-11-14": "skb-llm-chatbot-prd-temp", "2025-11-17": "skb-llm-chatbot-prd-temp", "2025-11-18": "VisionLLM-based-testcase-automation", "2025-11-19": "skb-llm-chatbot-prd-temp", "2025-11-20": "skb-llm-chatbot-prd-temp", "2025-11-21": "collection-selection-test", "2025-11-24": "skb-llm-chatbot-prd-temp", "2025-11-25": "skb-llm-chatbot-prd-temp", "2025-11-26": "skb-llm-chatbot-prd-temp", "2025-11-27": "VisionLLM-based-testcase-automation", "2025-11-28": "skb-llm-chatbot-prd-temp", "2025-12-01": "skb-llm-chatbot-prd-temp", "2025-12-02": "skb-llm-chatbot-prd-temp", "2025-12-03": "skb-llm-chatbot-prd-temp", "2025-12-04": "skb-llm-chatbot-prd-temp", "2025-12-08": "skb-llm-chatbot-prd-temp", "2025-12-09": "skb-llm-chatbot-prd-temp", "2025-12-10": "VisionLLM-based-testcase-automation", "2025-12-11": "skb-llm-chatbot-prd-temp", "2025-12-12": "gs_ap_test", "2025-12-16": "VisionLLM-based-testcase-automation", "2025-12-17": "skb-llm-chatbot-prd-temp", "2025-12-18": "skb-llm-chatbot-prd-temp", "2025-12-19": "skb-llm-chatbot-prd-temp", "2025-12-22": "VisionLLM-based-testcase-automation", "2025-12-23": "skb-llm-chatbot-prd-temp", "2025-12-24": "VisionLLM-based-testcase-automation", "2025-12-29": "skb-llm-chatbot-prd-temp", "2025-12-31": "VisionLLM-based-testcase-automation"}, "지희": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-03-24", "color": "#6b7280"}, {"date": "2025-03-25", "color": "#6b7280"}, {"date": "2025-03-26", "color": "#6b7280"}, {"date": "2025-04-01", "color": "#6b7280"}, {"date": "2025-04-03", "color": "#6b7280"}, {"date": "2025-04-04", "color": "#6b7280"}, {"date": "2025-04-08", "color": "#6b7280"}, {"date": "2025-04-09", "color": "#6b7280"}, {"date": "2025-04-10", "color": "#6b7280"}, {"date": "2025-04-11", "color": "#6b7280"}, {"date": "2025-04-14", "color": "#6b7280"}, {"date": "2025-04-16", "color": "#6b7280"}, {"date": "2025-04-17", "color": "#6b7280"}, {"date": "2025-04-22", "color": "#06b6d4"}, {"date": "2025-04-24", "color": "#06b6d4"}, {"date": "2025-04-25", "color": "#06b6d4"}, {"date": "2025-04-28", "color": "#06b6d4"}, {"date": "2025-05-02", "color": "#6b7280"}, {"date": "2025-05-07", "color": "#6b7280"}, {"date": "2025-05-12", "color": "#06b6d4"}, {"date": "2025-05-13", "color": "#6b7280"}, {"date": "2025-05-14", "color": "#6b7280"}, {"date": "2025-05-15", "color": "#6b7280"}, {"date": "2025-05-20", "color": "#6b7280"}, {"date": "2025-05-21", "color": "#06b6d4"}, {"date": "2025-05-22", "color": "#06b6d4"}, {"date": "2025-05-23", "color": "#06b6d4"}, {"date": "2025-05-26", "color": "#06b6d4"}, {"date": "2025-06-05", "color": "#06b6d4"}, {"date": "2025-06-09", "color": "#06b6d4"}, {"date": "2025-06-12", "color": "#6b7280"}, {"date": "2025-06-27", "color": "#06b6d4"}, {"date": "2025-07-03", "color": "#6b7280"}, {"date": "2025-07-04", "color": "#6b7280"}, {"date": "2025-07-11", "color": "#6b7280"}, {"date": "2025-07-18", "color": "#6b7280"}, {"date": "2025-07-21", "color": "#6b7280"}, {"date": "2025-07-23", "color": "#06b6d4"}, {"date": "2025-07-25", "color": "#06b6d4"}, {"date": "2025-07-30", "color": "#6b7280"}, {"date": "2025-08-05", "color": "#6b7280"}, {"date": "2025-08-25", "color": "#6b7280"}, {"date": "2025-08-26", "color": "#6b7280"}, {"date": "2025-08-28", "color": "#6b7280"}, {"date": "2025-08-29", "color": "#6b7280"}, {"date": "2025-09-02", "color": "#6b7280"}, {"date": "2025-09-09", "color": "#6b7280"}, {"date": "2025-09-17", "color": "#6b7280"}, {"date": "2025-09-18", "color": "#6b7280"}, {"date": "2025-09-19", "color": "#06b6d4"}, {"date": "2025-09-22", "color": "#06b6d4"}, {"date": "2025-09-23", "color": "#06b6d4"}, {"date": "2025-09-24", "color": "#06b6d4"}, {"date": "2025-09-25", "color": "#06b6d4"}, {"date": "2025-09-29", "color": "#6b7280"}, {"date": "2025-09-30", "color": "#06b6d4"}, {"date": "2025-10-23", "color": "#6b7280"}, {"date": "2025-10-24", "color": "#6b7280"}, {"date": "2025-10-27", "color": "#6b7280"}, {"date": "2025-10-28", "color": "#06b6d4"}, {"date": "2025-10-29", "color": "#6b7280"}, {"date": "2025-10-31", "color": "#6b7280"}, {"date": "2025-11-03", "color": "#6b7280"}, {"date": "2025-11-11", "color": "#6b7280"}, {"date": "2025-11-14", "color": "#6b7280"}, {"date": "2025-11-17", "color": "#22c55e"}, {"date": "2025-11-18", "color": "#22c55e"}, {"date": "2025-11-28", "color": "#6b7280"}, {"date": "2025-12-01", "color": "#6b7280"}, {"date": "2025-12-08", "color": "#6b7280"}, {"date": "2025-12-11", "color": "#6b7280"}, {"date": "2025-12-15", "color": "#6b7280"}, {"date": "2025-12-17", "color": "#6b7280"}, {"date": "2025-12-23", "color": "#6b7280"}, {"date": "2025-12-24", "color": "#6b7280"}, {"date": "2025-12-29", "color": "#6b7280"}, {"date": "2025-12-31", "color": "#6b7280"}]}, "2025-03-24": "nextlab-ml-assets", "2025-03-25": "nextlab-ml-assets", "2025-03-26": "nextlab-ml-assets", "2025-04-01": "nextlab-ml-assets", "2025-04-03": "nextlab-ml-assets", "2025-04-04": "nextlab-ml-assets", "2025-04-08": "nextlab-ml-assets", "2025-04-09": "nextlab-ml-assets", "2025-04-10": "llm-rag-poc", "2025-04-11": "nextlab-ml-assets", "2025-04-14": "nextlab-ml-assets", "2025-04-16": "nextlab-ml-assets", "2025-04-17": "nextlab-ml-assets", "2025-04-22": "xray", "2025-04-24": "xray", "2025-04-25": "xray", "2025-04-28": "xray", "2025-05-02": "nextlab-ml-assets", "2025-05-07": "llm-rag-poc", "2025-05-12": "xray", "2025-05-13": "nextlab-ml-assets", "2025-05-14": "llm-rag-poc", "2025-05-15": "nextlab-ml-assets", "2025-05-20": "nextlab-ml-assets", "2025-05-21": "xray", "2025-05-22": "xray", "2025-05-23": "xray", "2025-05-26": "xray", "2025-06-05": "xray", "2025-06-09": "xray", "2025-06-12": "nextlab-ml-assets", "2025-06-27": "xray", "2025-07-03": "nextlab-ml-assets", "2025-07-04": "nextlab-ml-assets", "2025-07-11": "nextlab-ml-assets", "2025-07-18": "pk-visual-ops-analysis", "2025-07-21": "nextlab-ml-assets", "2025-07-23": "xray", "2025-07-25": "xray", "2025-07-30": "super-agent-mvp", "2025-08-05": "super-agent-mvp", "2025-08-25": "super-agent-mvp", "2025-08-26": "nextlab-ml-assets", "2025-08-28": "nextlab-ml-assets", "2025-08-29": "super-agent-mvp", "2025-09-02": "nextlab-ml-assets", "2025-09-09": "nextlab-ml-assets", "2025-09-17": "nextlab-ml-assets", "2025-09-18": "nextlab-ml-assets", "2025-09-19": "xray", "2025-09-22": "xray", "2025-09-23": "xray", "2025-09-24": "xray", "2025-09-25": "xray", "2025-09-29": "nextlab-ml-assets", "2025-09-30": "xray", "2025-10-23": "nextlab-anomaly-benchmark", "2025-10-24": "nextlab-ml-assets", "2025-10-27": "nextlab-anomaly-benchmark", "2025-10-28": "xray", "2025-10-29": "nextlab-ml-assets", "2025-10-31": "nextlab-ml-assets", "2025-11-03": "nextlab-ml-assets", "2025-11-11": "nextlab-ml-assets", "2025-11-14": "nextlab-ml-assets", "2025-11-17": "vos", "2025-11-18": "vos", "2025-11-28": "skb-llm-chatbot-prd-temp", "2025-12-01": "skb-llm-chatbot-prd-temp", "2025-12-08": "skb-llm-chatbot-prd-temp", "2025-12-11": "skb-llm-chatbot-prd-temp", "2025-12-15": "skb-llm-chatbot-prd-temp", "2025-12-17": "nextlab-ml-assets", "2025-12-23": "skb-llm-chatbot-prd-temp", "2025-12-24": "skb-llm-chatbot-prd-temp", "2025-12-29": "skb-llm-chatbot-prd-temp", "2025-12-31": "skb-llm-chatbot-prd-temp"}, "준무": {"param": {"year": 2025, "layout": "aligned-weekdays", "cell_height": "1.5em", "start_day": 0, "highlight_color": "#fef9c3", "color_cell": [{"date": "2025-05-15", "color": "#6b7280"}, {"date": "2025-05-19", "color": "#6b7280"}, {"date": "2025-05-27", "color": "#6b7280"}, {"date": "2025-06-16", "color": "#6b7280"}, {"date": "2025-06-17", "color": "#6b7280"}, {"date": "2025-07-01", "color": "#6b7280"}, {"date": "2025-07-02", "color": "#6b7280"}, {"date": "2025-07-15", "color": "#6b7280"}, {"date": "2025-07-21", "color": "#6b7280"}, {"date": "2025-07-22", "color": "#6b7280"}, {"date": "2025-07-23", "color": "#6b7280"}, {"date": "2025-07-28", "color": "#6b7280"}, {"date": "2025-07-30", "color": "#6b7280"}, {"date": "2025-08-05", "color": "#6b7280"}, {"date": "2025-08-06", "color": "#6b7280"}, {"date": "2025-08-07", "color": "#6b7280"}, {"date": "2025-08-08", "color": "#6b7280"}, {"date": "2025-08-11", "color": "#6b7280"}, {"date": "2025-08-13", "color": "#6b7280"}, {"date": "2025-08-14", "color": "#6b7280"}, {"date": "2025-08-20", "color": "#6b7280"}, {"date": "2025-08-25", "color": "#6b7280"}, {"date": "2025-08-26", "color": "#6b7280"}, {"date": "2025-08-28", "color": "#6b7280"}, {"date": "2025-08-29", "color": "#6b7280"}, {"date": "2025-09-03", "color": "#6b7280"}, {"date": "2025-09-05", "color": "#6b7280"}, {"date": "2025-09-09", "color": "#6b7280"}, {"date": "2025-09-19", "color": "#6b7280"}, {"date": "2025-09-22", "color": "#6b7280"}, {"date": "2025-09-23", "color": "#6b7280"}, {"date": "2025-09-25", "color": "#6b7280"}, {"date": "2025-09-29", "color": "#6b7280"}, {"date": "2025-10-14", "color": "#6b7280"}, {"date": "2025-10-16", "color": "#6b7280"}, {"date": "2025-10-22", "color": "#6b7280"}, {"date": "2025-10-27", "color": "#6b7280"}, {"date": "2025-10-28", "color": "#6b7280"}, {"date": "2025-10-29", "color": "#6b7280"}, {"date": "2025-11-06", "color": "#6b7280"}, {"date": "2025-11-10", "color": "#6b7280"}, {"date": "2025-11-12", "color": "#6b7280"}, {"date": "2025-11-13", "color": "#6b7280"}, {"date": "2025-11-18", "color": "#6b7280"}, {"date": "2025-11-20", "color": "#6b7280"}, {"date": "2025-11-21", "color": "#6b7280"}, {"date": "2025-11-24", "color": "#6b7280"}, {"date": "2025-11-25", "color": "#6b7280"}, {"date": "2025-11-26", "color": "#6b7280"}, {"date": "2025-11-27", "color": "#6b7280"}, {"date": "2025-12-01", "color": "#6b7280"}, {"date": "2025-12-02", "color": "#6b7280"}, {"date": "2025-12-03", "color": "#6b7280"}, {"date": "2025-12-04", "color": "#6b7280"}, {"date": "2025-12-08", "color": "#6b7280"}, {"date": "2025-12-10", "color": "#6b7280"}, {"date": "2025-12-12", "color": "#6b7280"}, {"date": "2025-12-15", "color": "#6b7280"}, {"date": "2025-12-16", "color": "#6b7280"}, {"date": "2025-12-17", "color": "#6b7280"}, {"date": "2025-12-19", "color": "#6b7280"}, {"date": "2025-12-31", "color": "#6b7280"}]}, "2025-05-15": "super-agent-mvp", "2025-05-19": "super-agent-mvp", "2025-05-27": "super-agent-mvp", "2025-06-16": "super-agent-mvp", "2025-06-17": "super-agent-mvp", "2025-07-01": "iwinv-gpu-server-setup", "2025-07-02": "iwinv-gpu-server-setup", "2025-07-15": "super-agent-mvp", "2025-07-21": "super-agent-mvp", "2025-07-22": "super-agent-mvp", "2025-07-23": "super-agent-mvp", "2025-07-28": "super-agent-mvp", "2025-07-30": "super-agent-mvp", "2025-08-05": "super-agent-mvp", "2025-08-06": "super-agent-mvp", "2025-08-07": "super-agent-mvp", "2025-08-08": "super-agent-mvp", "2025-08-11": "super-agent-mvp", "2025-08-13": "super-agent-mvp", "2025-08-14": "super-agent-mvp", "2025-08-20": "llama-index-rag-system", "2025-08-25": "super-agent-mvp", "2025-08-26": "llama-index-rag-system", "2025-08-28": "llama-index-rag-system", "2025-08-29": "llama-index-rag-system", "2025-09-03": "llama-index-rag-system", "2025-09-05": "llama-index-rag-system", "2025-09-09": "llama-index-rag-system", "2025-09-19": "llama-index-rag-system", "2025-09-22": "llama-index-rag-system", "2025-09-23": "llama-index-rag-system", "2025-09-25": "llama-index-rag-system", "2025-09-29": "llama-index-rag-system", "2025-10-14": "llama-index-rag-system", "2025-10-16": "SKB-VisionLLM-TC-Auto", "2025-10-22": "llama-index-rag-system", "2025-10-27": "SKB-VisionLLM-TC-Auto", "2025-10-28": "SKB-VisionLLM-TC-Auto", "2025-10-29": "llama-index-rag-system", "2025-11-06": "skb-llm-chatbot-prd-temp", "2025-11-10": "skb-llm-chatbot-prd-temp", "2025-11-12": "skb-llm-chatbot-prd-temp", "2025-11-13": "skb-llm-chatbot-prd-temp", "2025-11-18": "skb-llm-chatbot-prd-temp", "2025-11-20": "skb-llm-chatbot-prd-temp", "2025-11-21": "skb-llm-chatbot-prd-temp", "2025-11-24": "skb-llm-chatbot-prd-temp", "2025-11-25": "skb-llm-chatbot-prd-temp", "2025-11-26": "skb-llm-chatbot-prd-temp", "2025-11-27": "skb-llm-chatbot-prd-temp", "2025-12-01": "skb-llm-chatbot-prd-temp", "2025-12-02": "skb-llm-chatbot-prd-temp", "2025-12-03": "skb-llm-chatbot-prd-temp", "2025-12-04": "skb-llm-chatbot-prd-temp", "2025-12-08": "skb-llm-chatbot-prd-temp", "2025-12-10": "VisionLLM-based-testcase-automation", "2025-12-12": "skb-llm-chatbot-prd-temp", "2025-12-15": "skb-llm-chatbot-prd-temp", "2025-12-16": "skb-llm-chatbot-prd-temp", "2025-12-17": "skb-llm-chatbot-prd-temp", "2025-12-19": "skb-llm-chatbot-prd-temp", "2025-12-31": "skb-llm-chatbot-prd-temp"}};
+
+  // 현재 선택된 캘린더
+  var currentCalendar = '세용';
+
+  // 캘린더 전환 함수
+  function switchCalendar(name) {
+    currentCalendar = name;
+
+    // 탭 버튼 활성화 상태 변경
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+      if (btn.dataset.name === name) {
+        btn.classList.add('active');
+      }
+    });
+
+    // 현재 이름 표시 업데이트
+    document.getElementById('currentName').textContent = name;
+
+    // 캘린더 다시 그리기
+    var data = ALL_CALENDAR_DATA[name];
+    if (data) {
+      // tbody 초기화
+      document.getElementById('ui_tbody').innerHTML = '';
+
+      // NEATOCAL_PARAM 설정
+      NEATOCAL_PARAM.data = data;
+      if (data.param) {
+        for (var key in data.param) {
+          NEATOCAL_PARAM[key] = data.param[key];
+        }
+      }
+
+      // 캘린더 다시 렌더링
+      neatocal_render();
+    }
+  }
+
+  // 탭 버튼 이벤트 바인딩
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      switchCalendar(this.dataset.name);
+    });
+  });
+
+  // 초기 캘린더 로드
+  (function() {
+    var initialData = ALL_CALENDAR_DATA[currentCalendar];
+    if (initialData) {
+      NEATOCAL_PARAM.data = initialData;
+      if (initialData.param) {
+        for (var key in initialData.param) {
+          NEATOCAL_PARAM[key] = initialData.param[key];
+        }
+      }
+      neatocal_render();
+    }
+  })();
+</script>
+</html>
